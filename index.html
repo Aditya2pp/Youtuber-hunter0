@@ -9,6 +9,21 @@
     <meta property="og:description" content="Find Client Who Need Work - YouTubers Finder Tool for Video Editors, Thumbnail Designers, Agencies, and Brand Deals." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <script>
+      // Agar user GitHub Pages par hai aur root index.html load ho gaya hai,
+      // toh turant pre-compiled standalone app (/docs/) par switch karo
+      (function() {
+        var host = window.location.hostname;
+        var isLocal = host === 'localhost' || host === '127.0.0.1' || host.indexOf('.run.app') !== -1;
+        if (!isLocal) {
+          var path = window.location.pathname;
+          if (path.indexOf('/docs') === -1) {
+            var target = path.charAt(path.length - 1) === '/' ? path + 'docs/' : path + '/docs/';
+            window.location.replace(target + window.location.search + window.location.hash);
+          }
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
