@@ -11,6 +11,8 @@ const htmlContent = fs.readFileSync(distIndex, 'utf8');
 
 // List of client routes that might be accessed directly
 const routes = [
+  'admin-011@',
+  'admin',
   'dashboard/find',
   'dashboard/saved',
   'dashboard/plans',

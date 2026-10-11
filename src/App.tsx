@@ -17,21 +17,29 @@ import FindPage from './components/FindPage.jsx';
 import SavedPage from './components/SavedPage.jsx';
 import PlansPage from './components/PlansPage.jsx';
 import SettingsPage from './components/SettingsPage.jsx';
+import AdminPage from './components/AdminPage.jsx';
 
 export default function App() {
   const getCleanPath = () => {
     if (typeof window === 'undefined') return '/';
-    // If hash routing is used (e.g. #/login, #/dashboard/find)
+    // If hash routing is used (e.g. #/login, #/admin-011@, #/dashboard/find)
     if (window.location.hash) {
-      const hash = window.location.hash.replace(/^#\/?/, '/');
-      if (hash) return hash;
+      let rawHash = window.location.hash.replace(/^#\/?/, '/');
+      try {
+        rawHash = decodeURIComponent(rawHash);
+      } catch {}
+      if (rawHash) return rawHash;
     }
-    const path = window.location.pathname || '/';
+    let path = window.location.pathname || '/';
+    try {
+      path = decodeURIComponent(path);
+    } catch {}
     // Match potential route inside repository subfolder or root
-    // e.g. /dashboard/find, /my-repo/dashboard/find, /docs/dashboard/find
-    const match = path.match(/\/(login|signup|dashboard(?:\/[a-zA-Z0-9_-]+)*)/);
+    // e.g. /admin-011@, /admin, /dashboard/find, /my-repo/admin-011@, /docs/dashboard/find
+    const match = path.match(/\/(login|signup|admin-011@|admin-011%40|admin|dashboard(?:\/[a-zA-Z0-9_-]+)*)/i);
     if (match) {
-      const targetRoute = '/' + match[1];
+      let targetRoute = '/' + match[1];
+      if (targetRoute === '/admin-011%40') targetRoute = '/admin-011@';
       // Convert direct path to hash route smoothly without reloading if on GitHub Pages
       if (typeof window.history.replaceState === 'function') {
         const repoBase = path.slice(0, match.index) || '';
@@ -77,6 +85,10 @@ export default function App() {
 
   if (currentPath === '/signup') {
     return <AuthForm mode="signup" onNavigate={navigate} />;
+  }
+
+  if (currentPath === '/admin-011@' || currentPath === '/admin-011%40' || currentPath === '/admin') {
+    return <AdminPage onNavigate={navigate} />;
   }
 
   if (currentPath === '/dashboard/saved') {

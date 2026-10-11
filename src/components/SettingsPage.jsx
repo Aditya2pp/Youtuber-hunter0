@@ -5,7 +5,7 @@
  * Styled with warm minimal aesthetic (#FAF6F2).
  */
 import React, { useState, useEffect } from 'react';
-import { me, plan, isPaid, logout, demoActivate, savedIds, subscribeStore } from '../../lib/store.js';
+import { me, plan, isPaid, logout, savedIds, subscribeStore } from '../../lib/store.js';
 
 export default function SettingsPage({ onNavigate }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -87,6 +87,22 @@ export default function SettingsPage({ onNavigate }) {
               {savedCount} creators saved
             </span>
           </div>
+
+          {currentUser.is_admin && (
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 col-span-1 sm:col-span-2 flex items-center justify-between">
+              <div>
+                <span className="font-extrabold text-xs text-rose-950 block">👑 Owner / Administrator Privileges Active</span>
+                <span className="text-[11px] text-rose-800">Access verified payments, user management & CSV imports.</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => onNavigate ? onNavigate('/admin-011@') : (window.location.hash = '#/admin-011@')}
+                className="py-2 px-3.5 bg-neutral-950 text-white rounded-xl text-xs font-black hover:bg-neutral-800 cursor-pointer shadow-xs"
+              >
+                Open Admin Panel →
+              </button>
+            </div>
+          )}
         </div>
 
         {!userIsPaid && (

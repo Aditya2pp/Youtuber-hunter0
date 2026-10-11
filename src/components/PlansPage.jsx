@@ -91,7 +91,7 @@ export default function PlansPage({ onNavigate }) {
     reader.readAsDataURL(file);
   };
 
-  const handleCompletePayment = (e) => {
+  const handleCompletePayment = async (e) => {
     if (e) e.preventDefault();
     setFormError('');
 
@@ -103,22 +103,21 @@ export default function PlansPage({ onNavigate }) {
 
     setIsProcessing(true);
 
-    setTimeout(() => {
-      try {
-        // Instantly activates the plan
-        submitPayment({
-          plan: selectedPlan.id,
-          amount: selectedPlan.price,
-          screenshot: screenshotName,
-        });
+    try {
+      // Instantly activates the plan
+      await submitPayment({
+        plan: selectedPlan.id,
+        amount: selectedPlan.price,
+        screenshotName,
+        screenshotData,
+      });
 
-        setIsProcessing(false);
-        setShowSuccessModal(true);
-      } catch (err) {
-        setIsProcessing(false);
-        setFormError(err.message || 'Error processing payment.');
-      }
-    }, 600);
+      setIsProcessing(false);
+      setShowSuccessModal(true);
+    } catch (err) {
+      setIsProcessing(false);
+      setFormError(err.message || 'Error processing payment.');
+    }
   };
 
   // Direct UPI URL for redirecting directly into GPay, PhonePe, Paytm, etc.

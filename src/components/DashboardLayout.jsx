@@ -7,12 +7,13 @@
  * - Auth guard: redirects unauthenticated users to /login
  */
 import React, { useState, useEffect } from 'react';
-import { me, isPaid, plan, subscribeStore } from '../../lib/store.js';
+import { me, isPaid, plan, rejectedNotice, subscribeStore } from '../../lib/store.js';
 
 export default function DashboardLayout({ activeMenu = 'find', onNavigate, children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userIsPaid, setUserIsPaid] = useState(false);
   const [userPlan, setUserPlan] = useState(null);
+  const [rejectionAlert, setRejectionAlert] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
@@ -32,6 +33,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
       setCurrentUser(u);
       setUserIsPaid(isPaid());
       setUserPlan(plan());
+      setRejectionAlert(rejectedNotice());
     };
 
     checkState();
@@ -323,7 +325,21 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
           </div>
 
           {/* Right Header: Profile Badge */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {currentUser?.is_admin && (
+              <a
+                href="#/admin-011@"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onNavigate) onNavigate('/admin-011@');
+                }}
+                className="px-2.5 py-1.5 rounded-xl bg-[#FF3358]/10 text-[#FF3358] border border-[#FF3358]/20 font-extrabold text-xs hover:bg-[#FF3358] hover:text-white transition-all shadow-xs flex items-center gap-1 cursor-pointer"
+                title="Go to Admin Panel"
+              >
+                <span>👑 Admin</span>
+              </a>
+            )}
+
             <a
               href="#/dashboard/settings"
               onClick={(e) => {
@@ -349,6 +365,15 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
 
         {/* Content Viewport */}
         <main className="flex-1 p-3.5 sm:p-8 max-w-7xl w-full mx-auto">
+          {rejectionAlert && (
+            <div className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-300 text-amber-900 flex items-start gap-3 shadow-xs">
+              <span className="text-xl">⚠️</span>
+              <div className="flex-1 text-xs sm:text-sm">
+                <strong className="block font-black text-amber-950 mb-0.5">Important Account Notice:</strong>
+                <p className="leading-relaxed font-medium">{rejectionAlert}</p>
+              </div>
+            </div>
+          )}
           {children}
         </main>
       </div>
