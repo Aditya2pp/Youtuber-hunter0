@@ -42,7 +42,7 @@ export default function CreatorCard({
     if (onNavigate) {
       onNavigate('/dashboard/plans');
     } else if (typeof window !== 'undefined') {
-      window.location.href = '/dashboard/plans';
+      window.location.hash = '#/dashboard/plans';
     }
   };
 
@@ -249,7 +249,7 @@ export default function CreatorCard({
 
         {isEmailLocked ? (
           <a
-            href="/dashboard/plans"
+            href="#/dashboard/plans"
             onClick={handlePlanClick}
             className="inline-flex items-center gap-1 text-xs font-extrabold text-[#FF3358] bg-rose-50 px-2.5 py-1 rounded-xl border border-rose-200 hover:bg-rose-100 transition-colors focus-visible:outline-2 focus-visible:outline-[#FF3358]"
           >

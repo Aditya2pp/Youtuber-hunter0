@@ -23,15 +23,16 @@ export default function LandingPage({ onNavigate }) {
   }, []);
 
   const handleNavClick = (path, e) => {
-    if (path.startsWith('#')) {
+    if (path.startsWith('#') && !path.startsWith('#/')) {
       setMobileNavOpen(false);
       return;
     }
     if (e) e.preventDefault();
+    const clean = path.replace(/^#\/?/, '/');
     if (onNavigate) {
-      onNavigate(path);
+      onNavigate(clean);
     } else if (typeof window !== 'undefined') {
-      window.location.href = path;
+      window.location.hash = '#' + (clean.startsWith('/') ? clean : '/' + clean);
     }
     setMobileNavOpen(false);
   };
@@ -158,7 +159,7 @@ export default function LandingPage({ onNavigate }) {
       <nav className="max-w-7xl mx-auto px-4 sm:px-8 py-5 sm:py-7 flex items-center justify-between">
         {/* Brand Logo Squircle */}
         <a
-          href="/"
+          href="#/"
           className="flex items-center gap-3 group focus-visible:outline-2 focus-visible:outline-[#FF3358] rounded-2xl"
           aria-label="YouTuber Finder Homepage"
         >
@@ -187,7 +188,7 @@ export default function LandingPage({ onNavigate }) {
         <div className="flex items-center gap-3">
           {currentUser ? (
             <a
-              href="/dashboard/settings"
+              href="#/dashboard/settings"
               onClick={(e) => handleNavClick('/dashboard/settings', e)}
               title={`Workspace of @${currentUser.username}`}
               className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-[#E0D8CE] bg-white flex items-center justify-center text-neutral-800 hover:border-neutral-900 shadow-xs transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-[#FF3358]"
@@ -199,14 +200,14 @@ export default function LandingPage({ onNavigate }) {
           ) : (
             <div className="flex items-center gap-2.5">
               <a
-                href="/login"
+                href="#/login"
                 onClick={(e) => handleNavClick('/login', e)}
                 className="hidden sm:inline-block px-4 py-2 text-xs font-bold text-neutral-700 hover:text-black transition-colors"
               >
                 Log In
               </a>
               <a
-                href="/signup"
+                href="#/signup"
                 onClick={(e) => handleNavClick('/signup', e)}
                 title="Get Started"
                 className="w-11 h-11 sm:w-12 sm:h-12 rounded-full border border-[#D8CFC5] bg-white flex items-center justify-center text-neutral-900 hover:border-black shadow-xs hover:shadow-sm transition-all hover:scale-105 focus-visible:outline-2 focus-visible:outline-[#FF3358]"
@@ -296,7 +297,7 @@ export default function LandingPage({ onNavigate }) {
             {/* CTA BUTTON WITH 2.5D DEPTH */}
             <div className="pt-2 flex flex-wrap items-center gap-4">
               <a
-                href={currentUser ? '/dashboard/find' : '/signup'}
+                href={currentUser ? '#/dashboard/find' : '#/signup'}
                 onClick={(e) => handleNavClick(currentUser ? '/dashboard/find' : '/signup', e)}
                 className="btn-25d py-3.5 px-8 sm:px-9 text-base sm:text-lg inline-flex items-center gap-2.5 cursor-pointer focus-visible:outline-2 focus-visible:outline-neutral-900"
               >
@@ -588,7 +589,7 @@ export default function LandingPage({ onNavigate }) {
 
                 {/* Contact Red Button */}
                 <a
-                  href="/signup"
+                  href="#/signup"
                   onClick={(e) => handleNavClick('/signup', e)}
                   className="block w-full py-2 rounded-xl text-center text-xs font-extrabold text-white bg-[#FF3358] hover:bg-[#FF1F48] shadow-md transition-colors"
                 >
@@ -887,7 +888,7 @@ export default function LandingPage({ onNavigate }) {
               </div>
               <div className="mt-8">
                 <a
-                  href="/signup"
+                  href="#/signup"
                   onClick={(e) => handleNavClick('/signup', e)}
                   className="block w-full py-2.5 px-4 rounded-xl border border-[#D8CFC5] text-center text-xs font-bold text-neutral-900 hover:bg-neutral-50 transition-colors"
                 >
@@ -918,7 +919,7 @@ export default function LandingPage({ onNavigate }) {
               </div>
               <div className="mt-8">
                 <a
-                  href={currentUser ? '/dashboard/plans' : '/signup'}
+                  href={currentUser ? '#/dashboard/plans' : '#/signup'}
                   onClick={(e) => handleNavClick(currentUser ? '/dashboard/plans' : '/signup', e)}
                   className="block w-full py-3 px-4 rounded-xl text-center text-xs font-extrabold text-white bg-[#FF3358] hover:bg-[#FF1F48] shadow-md transition-colors"
                 >
@@ -949,7 +950,7 @@ export default function LandingPage({ onNavigate }) {
               </div>
               <div className="mt-8">
                 <a
-                  href={currentUser ? '/dashboard/plans' : '/signup'}
+                  href={currentUser ? '#/dashboard/plans' : '#/signup'}
                   onClick={(e) => handleNavClick(currentUser ? '/dashboard/plans' : '/signup', e)}
                   className="block w-full btn-25d py-3 text-center text-xs font-extrabold"
                 >

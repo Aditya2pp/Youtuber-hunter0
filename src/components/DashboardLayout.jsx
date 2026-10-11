@@ -25,7 +25,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
         if (onNavigate) {
           onNavigate('/login');
         } else if (typeof window !== 'undefined') {
-          window.location.href = '/login';
+          window.location.hash = '#/login';
         }
         return;
       }
@@ -58,7 +58,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
     {
       id: 'find',
       label: 'Find YouTubers',
-      href: '/dashboard/find',
+      href: '#/dashboard/find',
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="11" cy="11" r="8" />
@@ -69,7 +69,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
     {
       id: 'saved',
       label: 'Saved YouTubers',
-      href: '/dashboard/saved',
+      href: '#/dashboard/saved',
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
@@ -79,7 +79,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
     {
       id: 'plans',
       label: 'Plans & Pricing',
-      href: '/dashboard/plans',
+      href: '#/dashboard/plans',
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -89,7 +89,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
     {
       id: 'settings',
       label: 'Settings',
-      href: '/dashboard/settings',
+      href: '#/dashboard/settings',
       icon: (
         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="3" />
@@ -108,10 +108,11 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
 
   const handleMenuClick = (item, e) => {
     e.preventDefault();
+    const cleanPath = item.href.replace(/^#\/?/, '/');
     if (onNavigate) {
-      onNavigate(item.href);
+      onNavigate(cleanPath);
     } else if (typeof window !== 'undefined') {
-      window.location.href = item.href;
+      window.location.hash = item.href;
     }
     if (!isDesktop) {
       setMobileDrawerOpen(false);
@@ -165,7 +166,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
         {/* Top: Logo */}
         <div className="p-4 sm:p-5 flex items-center justify-between border-b border-[#EAE3DB]">
           <a
-            href="/"
+            href="#/"
             onClick={(e) => {
               if (onNavigate) {
                 e.preventDefault();
@@ -258,7 +259,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
               </p>
               {!userIsPaid && (
                 <a
-                  href="/dashboard/plans"
+                  href="#/dashboard/plans"
                   onClick={(e) => {
                     e.preventDefault();
                     if (onNavigate) onNavigate('/dashboard/plans');
@@ -273,7 +274,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
           ) : (
             <div className="flex justify-center">
               <a
-                href="/dashboard/plans"
+                href="#/dashboard/plans"
                 onClick={(e) => {
                   e.preventDefault();
                   if (onNavigate) onNavigate('/dashboard/plans');
@@ -324,7 +325,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
           {/* Right Header: Profile Badge */}
           <div className="flex items-center gap-3">
             <a
-              href="/dashboard/settings"
+              href="#/dashboard/settings"
               onClick={(e) => {
                 e.preventDefault();
                 if (onNavigate) onNavigate('/dashboard/settings');

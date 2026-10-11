@@ -21,17 +21,27 @@ import SettingsPage from './components/SettingsPage.jsx';
 export default function App() {
   const getCleanPath = () => {
     if (typeof window === 'undefined') return '/';
-    // If hash routing is used (e.g. /#login or /#/login)
+    // If hash routing is used (e.g. #/login, #/dashboard/find)
     if (window.location.hash) {
       const hash = window.location.hash.replace(/^#\/?/, '/');
       if (hash) return hash;
     }
     const path = window.location.pathname || '/';
-    // Remove potential GitHub Pages repository subfolder if path starts with it
-    // e.g. /repo-name/dashboard -> /dashboard
-    const match = path.match(/\/(login|signup|dashboard.*)$/);
+    // Match potential route inside repository subfolder or root
+    // e.g. /dashboard/find, /my-repo/dashboard/find, /docs/dashboard/find
+    const match = path.match(/\/(login|signup|dashboard(?:\/[a-zA-Z0-9_-]+)*)/);
     if (match) {
-      return '/' + match[1];
+      const targetRoute = '/' + match[1];
+      // Convert direct path to hash route smoothly without reloading if on GitHub Pages
+      if (typeof window.history.replaceState === 'function') {
+        const repoBase = path.slice(0, match.index) || '';
+        try {
+          window.history.replaceState({}, '', (repoBase || '') + '/#' + targetRoute + (window.location.search || ''));
+        } catch {
+          window.location.hash = '#' + targetRoute;
+        }
+      }
+      return targetRoute;
     }
     return '/';
   };
@@ -52,23 +62,10 @@ export default function App() {
 
   const navigate = (path: string) => {
     if (typeof window !== 'undefined') {
-      // If running on GitHub Pages (username.github.io) or file protocol,
-      // use hash routing (e.g. #/login, #/dashboard/plans) so page reload never gives 404
-      const isGitHubPages =
-        window.location.hostname.includes('github.io') ||
-        window.location.protocol === 'file:' ||
-        Boolean(window.location.hash);
-
-      if (isGitHubPages) {
-        window.location.hash = '#' + (path.startsWith('/') ? path : '/' + path);
-      } else {
-        try {
-          window.history.pushState({}, '', path);
-        } catch {
-          window.location.hash = '#' + path;
-        }
-      }
-      setCurrentPath(getCleanPath());
+      const cleanTarget = path.startsWith('/') ? path : '/' + path;
+      // Always update hash - works universally on GitHub Pages, preview environments, custom domains
+      window.location.hash = '#' + cleanTarget;
+      setCurrentPath(cleanTarget);
       window.scrollTo(0, 0);
     }
   };
@@ -93,7 +90,7 @@ export default function App() {
   if (currentPath === '/dashboard/plans') {
     return (
       <DashboardLayout activeMenu="plans" onNavigate={navigate}>
-        <PlansPage />
+        <PlansPage onNavigate={navigate} />
       </DashboardLayout>
     );
   }

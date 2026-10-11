@@ -59,7 +59,7 @@ export default function AuthForm({ mode = 'login', onNavigate }) {
     if (onNavigate) {
       onNavigate('/dashboard/find');
     } else if (typeof window !== 'undefined') {
-      window.location.href = '/dashboard/find';
+      window.location.hash = '#/dashboard/find';
     }
   };
 
@@ -72,7 +72,7 @@ export default function AuthForm({ mode = 'login', onNavigate }) {
           {/* Back to Home Link */}
           <div className="mb-6 flex justify-between items-center">
             <a
-              href="/"
+              href="#/"
               onClick={(e) => {
                 if (onNavigate) {
                   e.preventDefault();
@@ -306,7 +306,7 @@ export default function AuthForm({ mode = 'login', onNavigate }) {
                 <p className="text-xs text-neutral-500 font-medium">
                   Already have an account?{' '}
                   <a
-                    href="/login"
+                    href="#/login"
                     onClick={(e) => {
                       if (onNavigate) {
                         e.preventDefault();
@@ -322,7 +322,7 @@ export default function AuthForm({ mode = 'login', onNavigate }) {
                 <p className="text-xs text-neutral-500 font-medium">
                   Don&apos;t have an account yet?{' '}
                   <a
-                    href="/signup"
+                    href="#/signup"
                     onClick={(e) => {
                       if (onNavigate) {
                         e.preventDefault();

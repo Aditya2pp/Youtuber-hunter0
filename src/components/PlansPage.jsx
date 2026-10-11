@@ -13,7 +13,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { PLANS, UPI_ID, UPI_NAME } from '../../lib/data.js';
 import { isPaid, plan, payment, submitPayment, demoActivate, subscribeStore } from '../../lib/store.js';
 
-export default function PlansPage() {
+export default function PlansPage({ onNavigate }) {
   const [userIsPaid, setUserIsPaid] = useState(false);
   const [currentPlan, setCurrentPlan] = useState(null);
   const [lastPayment, setLastPayment] = useState(null);
@@ -143,10 +143,13 @@ export default function PlansPage() {
             </p>
 
             <button
+              type="button"
               onClick={() => {
                 setShowSuccessModal(false);
-                if (typeof window !== 'undefined') {
-                  window.location.href = '/dashboard/find';
+                if (onNavigate) {
+                  onNavigate('/dashboard/find');
+                } else if (typeof window !== 'undefined') {
+                  window.location.hash = '#/dashboard/find';
                 }
               }}
               className="w-full py-3.5 px-6 rounded-2xl text-sm font-extrabold text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-95 cursor-pointer"

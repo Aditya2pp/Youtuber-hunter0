@@ -30,7 +30,7 @@ export default function SettingsPage({ onNavigate }) {
     if (onNavigate) {
       onNavigate('/');
     } else if (typeof window !== 'undefined') {
-      window.location.href = '/';
+      window.location.hash = '#/';
     }
   };
 
