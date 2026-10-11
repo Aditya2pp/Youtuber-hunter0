@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Single index.html for GitHub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 20px; padding: 28px 24px; max-width: 440px; width: 100%; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); text-align: center; }
+    .badge { display: inline-block; background: #22c55e20; color: #4ade80; border: 1px solid #22c55e40; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+    h1 { font-size: 22px; margin-bottom: 10px; color: #ffffff; }
+    p { font-size: 14px; color: #94a3b8; line-height: 1.5; margin-bottom: 24px; }
+    .btn { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 600; text-decoration: none; margin-bottom: 12px; transition: 0.2s; cursor: pointer; border: none; }
+    .btn-primary { background: linear-gradient(135deg, #6366f1, #a855f7); color: #ffffff; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4); }
+    .btn-secondary { background: #334155; color: #f1f5f9; }
+    .steps { background: #0f172a; border-radius: 12px; padding: 16px; margin-top: 20px; text-align: left; font-size: 13px; color: #cbd5e1; }
+    .steps ol { padding-left: 20px; }
+    .steps li { margin-bottom: 8px; }
+    .steps strong { color: #38bdf8; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">✓ Single File Ready</div>
+    <h1>GitHub ke liye Sirf 1 File</h1>
+    <p>Sabhi CSS aur JavaScript isi ek <b>index.html</b> ke andar pack kar di gayi hai. Koi alag folder ya assets upload karne ki zaroorat nahi hai!</p>
+
+    <!-- Download direct file -->
+    <a href="/github-index.html" download="index.html" class="btn btn-primary" id="downloadBtn">
+      <span>📥</span> Download <b>index.html</b>
+    </a>
+
+    <!-- Alternative Zip -->
+    <a href="/single-file.zip" download="single-file.zip" class="btn btn-secondary">
+      <span>📦</span> Download Zip (Sirf index.html)
+    </a>
+
+    <div class="steps">
+      <div style="font-weight: 700; margin-bottom: 8px; color: #f8fafc;">📱 Phone se GitHub pe kaise daalein:</div>
+      <ol>
+        <li>Upar wale button se <strong>index.html</strong> download karein.</li>
+        <li>GitHub repo me jayein ➔ <strong>Add file ➔ Upload files</strong>.</li>
+        <li>Downloads me se sirf <strong>index.html</strong> select karein.</li>
+        <li>Neeche <strong>Commit changes</strong> par click karein.</li>
+        <li>Settings ➔ Pages me jakar <strong>main</strong> branch save karein!</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // Trigger download automatically if user clicked a direct download link
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('auto') === 'true') {
+      setTimeout(() => {
+        document.getElementById('downloadBtn').click();
+      }, 500);
+    }
+  </script>
+</body>
+</html>

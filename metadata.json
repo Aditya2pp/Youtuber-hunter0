@@ -1,0 +1,8 @@
+{
+  "name": "YouTuber Finder",
+  "description": "Find Client Who Need Work - YouTubers Finder Tool for Video Editors, Thumbnail Designers, Agencies, and Brand Deals.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
