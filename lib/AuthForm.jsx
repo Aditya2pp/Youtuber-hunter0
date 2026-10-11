@@ -20,7 +20,7 @@ export default function AuthForm({ mode = 'login', onNavigate }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
@@ -30,13 +30,17 @@ export default function AuthForm({ mode = 'login', onNavigate }) {
         return;
       }
       setIsSubmitting(true);
-      const err = signup({ username, email, password });
-      setIsSubmitting(false);
-
-      if (err) {
-        setError(err);
-      } else {
-        setShowLoader(true);
+      try {
+        const err = await signup({ username, email, password });
+        setIsSubmitting(false);
+        if (err) {
+          setError(err);
+        } else {
+          setShowLoader(true);
+        }
+      } catch (e) {
+        setIsSubmitting(false);
+        setError(e?.message || 'Error creating account. Please try again.');
       }
     } else {
       if (!identifier.trim() || !password) {
@@ -44,13 +48,17 @@ export default function AuthForm({ mode = 'login', onNavigate }) {
         return;
       }
       setIsSubmitting(true);
-      const err = login(identifier, password);
-      setIsSubmitting(false);
-
-      if (err) {
-        setError(err);
-      } else {
-        setShowLoader(true);
+      try {
+        const err = await login(identifier, password);
+        setIsSubmitting(false);
+        if (err) {
+          setError(err);
+        } else {
+          setShowLoader(true);
+        }
+      } catch (e) {
+        setIsSubmitting(false);
+        setError(e?.message || 'Error signing in. Please check your credentials.');
       }
     }
   };

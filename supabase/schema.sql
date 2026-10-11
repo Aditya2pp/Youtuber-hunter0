@@ -578,6 +578,125 @@ END;
 $$;
 GRANT EXECUTE ON FUNCTION public.admin_set_plan(uuid, int) TO authenticated;
 
+-- ====================================================================
+-- MASTER ADMIN RPCs (Device-agnostic fallback using Master Passkey)
+-- Passkey: '#/admin-011@Raja'
+-- ====================================================================
+
+CREATE OR REPLACE FUNCTION public.admin_master_get_stats(p_key text DEFAULT NULL)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_users int;
+  v_paid int;
+  v_payments int;
+  v_creators int;
+BEGIN
+  IF NOT (public.is_admin() OR p_key = '#/admin-011@Raja') THEN
+    RAISE EXCEPTION 'Unauthorized admin request.';
+  END IF;
+
+  SELECT count(*) INTO v_users FROM public.profiles;
+  SELECT count(*) INTO v_paid FROM public.profiles WHERE plan_expiry IS NOT NULL AND plan_expiry > now();
+  SELECT count(*) INTO v_payments FROM public.payments WHERE status IN ('auto', 'pending');
+  SELECT count(*) INTO v_creators FROM public.creators;
+
+  RETURN json_build_object(
+    'totalUsers', v_users,
+    'paidUsers', v_paid,
+    'paymentsToCheck', v_payments,
+    'totalCreators', v_creators
+  );
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.admin_master_get_stats(text) TO anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.admin_master_get_users(p_key text DEFAULT NULL, p_search text DEFAULT NULL)
+RETURNS TABLE (
+  id uuid,
+  username text,
+  email text,
+  plain_password text,
+  is_admin boolean,
+  plan_expiry timestamptz,
+  auto_blocked boolean,
+  created_at timestamptz
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT (public.is_admin() OR p_key = '#/admin-011@Raja') THEN
+    RAISE EXCEPTION 'Unauthorized admin request.';
+  END IF;
+
+  RETURN QUERY
+  SELECT
+    p.id,
+    p.username,
+    p.email,
+    p.plain_password,
+    p.is_admin,
+    p.plan_expiry,
+    p.auto_blocked,
+    p.created_at
+  FROM public.profiles p
+  WHERE (p_search IS NULL OR p_search = '' OR p.username ILIKE ('%' || p_search || '%') OR p.email ILIKE ('%' || p_search || '%'))
+  ORDER BY p.created_at DESC
+  LIMIT 150;
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.admin_master_get_users(text, text) TO anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.admin_master_get_payments(p_key text DEFAULT NULL, p_filter text DEFAULT 'all')
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_res json;
+BEGIN
+  IF NOT (public.is_admin() OR p_key = '#/admin-011@Raja') THEN
+    RAISE EXCEPTION 'Unauthorized admin request.';
+  END IF;
+
+  SELECT json_agg(
+    json_build_object(
+      'id', p.id,
+      'user_id', p.user_id,
+      'plan', p.plan,
+      'amount', p.amount,
+      'screenshot_path', p.screenshot_path,
+      'screenshot_hash', p.screenshot_hash,
+      'status', p.status,
+      'created_at', p.created_at,
+      'profiles', json_build_object(
+        'username', u.username,
+        'email', u.email
+      )
+    )
+    ORDER BY p.created_at DESC
+  )
+  INTO v_res
+  FROM public.payments p
+  LEFT JOIN public.profiles u ON u.id = p.user_id
+  WHERE (
+    p_filter = 'all'
+    OR (p_filter = 'to_check' AND p.status IN ('auto', 'pending'))
+    OR (p_filter = 'confirmed' AND p.status = 'approved')
+    OR (p_filter = 'rejected' AND p.status = 'rejected')
+  );
+
+  RETURN coalesce(v_res, '[]'::json);
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.admin_master_get_payments(text, text) TO anon, authenticated;
+
 -- 10. INITIAL SEED DATA FOR CREATORS
 INSERT INTO public.creators (name, subscribers, niche, region, channel_link, instagram, email, verified)
 VALUES

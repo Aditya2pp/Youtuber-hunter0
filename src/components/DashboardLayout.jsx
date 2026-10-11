@@ -20,15 +20,29 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
 
   // Check auth and plan status
   useEffect(() => {
+    let redirectTimer = null;
+
     const checkState = () => {
       const u = me();
       if (!u) {
-        if (onNavigate) {
-          onNavigate('/login');
-        } else if (typeof window !== 'undefined') {
-          window.location.hash = '#/login';
+        // Give 450ms for localStorage / Supabase session to rehydrate before redirecting
+        if (!redirectTimer) {
+          redirectTimer = setTimeout(() => {
+            const recheck = me();
+            if (!recheck) {
+              if (onNavigate) {
+                onNavigate('/login');
+              } else if (typeof window !== 'undefined') {
+                window.location.hash = '#/login';
+              }
+            }
+          }, 450);
         }
         return;
+      }
+      if (redirectTimer) {
+        clearTimeout(redirectTimer);
+        redirectTimer = null;
       }
       setCurrentUser(u);
       setUserIsPaid(isPaid());
@@ -38,7 +52,10 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
 
     checkState();
     const unsub = subscribeStore(checkState);
-    return () => unsub();
+    return () => {
+      unsub();
+      if (redirectTimer) clearTimeout(redirectTimer);
+    };
   }, [onNavigate]);
 
   // Window resize listener for 900px breakpoint
