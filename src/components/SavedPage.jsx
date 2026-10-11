@@ -5,21 +5,39 @@
  */
 import React, { useState, useEffect } from 'react';
 import { CREATORS } from '../../lib/data.js';
-import { isPaid, savedIds, toggleSave, subscribeStore } from '../../lib/store.js';
+import { isPaid, savedIds, toggleSave, subscribeStore, getLiveCreators } from '../../lib/store.js';
 import CreatorCard from '../../lib/CreatorCard.js';
 
 export default function SavedPage({ onNavigate }) {
   const [userIsPaid, setUserIsPaid] = useState(false);
   const [savedList, setSavedList] = useState([]);
+  const [creatorsList, setCreatorsList] = useState(CREATORS);
 
   useEffect(() => {
+    let mounted = true;
+    const fetchLive = async () => {
+      try {
+        const live = await getLiveCreators();
+        if (mounted && Array.isArray(live) && live.length > 0) {
+          setCreatorsList(live);
+        }
+      } catch (e) {
+        console.warn('SavedPage load creators error:', e);
+      }
+    };
+
     const update = () => {
       setUserIsPaid(isPaid());
       setSavedList(savedIds());
+      fetchLive();
     };
+
     update();
     const unsub = subscribeStore(update);
-    return () => unsub();
+    return () => {
+      mounted = false;
+      unsub();
+    };
   }, []);
 
   const handleToggleSave = (id) => {
@@ -27,7 +45,7 @@ export default function SavedPage({ onNavigate }) {
     setSavedList(updated);
   };
 
-  const savedCreators = CREATORS.filter((c) => savedList.includes(c.id));
+  const savedCreators = creatorsList.filter((c) => savedList.includes(c.id));
 
   return (
     <div className="space-y-6">

@@ -6,7 +6,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { CREATORS, NICHES, COUNTRIES, RANGES } from '../../lib/data.js';
-import { isPaid, savedIds, toggleSave, subscribeStore } from '../../lib/store.js';
+import { isPaid, savedIds, toggleSave, subscribeStore, getLiveCreators } from '../../lib/store.js';
 import CreatorCard from '../../lib/CreatorCard.js';
 
 export default function FindPage({ onNavigate }) {
@@ -23,15 +23,33 @@ export default function FindPage({ onNavigate }) {
 
   const [userIsPaid, setUserIsPaid] = useState(false);
   const [savedList, setSavedList] = useState([]);
+  const [creatorsList, setCreatorsList] = useState(CREATORS);
 
   useEffect(() => {
+    let mounted = true;
+    const fetchLive = async () => {
+      try {
+        const live = await getLiveCreators();
+        if (mounted && Array.isArray(live) && live.length > 0) {
+          setCreatorsList(live);
+        }
+      } catch (e) {
+        console.warn('FindPage load creators error:', e);
+      }
+    };
+
     const update = () => {
       setUserIsPaid(isPaid());
       setSavedList(savedIds());
+      fetchLive();
     };
+
     update();
     const unsub = subscribeStore(update);
-    return () => unsub();
+    return () => {
+      mounted = false;
+      unsub();
+    };
   }, []);
 
   const handleSearch = (e) => {
@@ -57,8 +75,8 @@ export default function FindPage({ onNavigate }) {
     setSavedList(updated);
   };
 
-  // Filter creators
-  const filteredCreators = CREATORS.filter((c) => {
+  // Filter creators from dynamic live database
+  const filteredCreators = creatorsList.filter((c) => {
     // Niche filter
     if (appliedFilters.niche !== 'all' && c.niche.toLowerCase() !== appliedFilters.niche.toLowerCase()) {
       return false;

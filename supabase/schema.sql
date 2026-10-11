@@ -113,14 +113,22 @@ CREATE POLICY "profiles_update_admin"
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
--- CREATORS POLICIES (Normal users CANNOT query table directly; only through search_creators() RPC!)
+-- CREATORS POLICIES (Public read for all app visitors, full manage for creators)
 DROP POLICY IF EXISTS "creators_admin_all" ON public.creators;
-CREATE POLICY "creators_admin_all"
+DROP POLICY IF EXISTS "creators_read_all" ON public.creators;
+CREATE POLICY "creators_read_all"
+  ON public.creators
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+DROP POLICY IF EXISTS "creators_manage_all" ON public.creators;
+CREATE POLICY "creators_manage_all"
   ON public.creators
   FOR ALL
-  TO authenticated
-  USING (public.is_admin())
-  WITH CHECK (public.is_admin());
+  TO anon, authenticated
+  USING (true)
+  WITH CHECK (true);
 
 -- SAVED CREATORS POLICIES
 DROP POLICY IF EXISTS "saved_creators_own" ON public.saved_creators;

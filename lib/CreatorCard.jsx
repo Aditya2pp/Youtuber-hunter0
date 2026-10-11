@@ -197,18 +197,22 @@ export default function CreatorCard({
               </svg>
               Channel URL:
             </span>
-            <a
-              href={creator.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-900 hover:text-[#FF3358] hover:underline font-bold flex items-center gap-1 max-w-[190px] truncate"
-            >
-              <span className="truncate">{creator.link.replace('https://', '')}</span>
-              <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-              </svg>
-            </a>
+            {creator.link || creator.channel_link ? (
+              <a
+                href={creator.link || creator.channel_link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-900 hover:text-[#FF3358] hover:underline font-bold flex items-center gap-1 max-w-[190px] truncate"
+              >
+                <span className="truncate">{(creator.link || creator.channel_link).replace(/^https?:\/\/(www\.)?/, '')}</span>
+                <svg className="w-3 h-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                </svg>
+              </a>
+            ) : (
+              <span className="text-neutral-400 font-medium">None</span>
+            )}
           </div>
 
           {/* Instagram ID */}
@@ -221,18 +225,22 @@ export default function CreatorCard({
               </svg>
               Instagram ID:
             </span>
-            <a
-              href={creator.insta}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-neutral-900 hover:text-[#FF3358] hover:underline font-bold flex items-center gap-1 max-w-[190px] truncate"
-            >
-              <span className="truncate">{creator.insta.replace('https://instagram.com/', '@')}</span>
-              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-              </svg>
-            </a>
+            {creator.insta || creator.instagram ? (
+              <a
+                href={creator.insta || creator.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-neutral-900 hover:text-[#FF3358] hover:underline font-bold flex items-center gap-1 max-w-[190px] truncate"
+              >
+                <span className="truncate">{(creator.insta || creator.instagram).replace(/^https?:\/\/(www\.)?instagram\.com\/?/, '@')}</span>
+                <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                </svg>
+              </a>
+            ) : (
+              <span className="text-neutral-400 font-medium">None</span>
+            )}
           </div>
         </div>
       </div>
