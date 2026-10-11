@@ -11,15 +11,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { PLANS, UPI_ID, UPI_NAME } from '../../lib/data.js';
-import { isPaid, plan, payment, submitPayment, demoActivate, subscribeStore } from '../../lib/store.js';
+import { isPaid, plan, payment, submitPayment, subscribeStore } from '../../lib/store.js';
 
 export default function PlansPage({ onNavigate }) {
   const [userIsPaid, setUserIsPaid] = useState(false);
   const [currentPlan, setCurrentPlan] = useState(null);
   const [lastPayment, setLastPayment] = useState(null);
 
-  // Default to 30 Days Pass so payment section is ready or easily chosen
-  const [selectedPlan, setSelectedPlan] = useState(PLANS[0]);
+  // Hidden by default until user clicks on ₹30 or ₹299 plan card
+  const [selectedPlan, setSelectedPlan] = useState(null);
   const [screenshotName, setScreenshotName] = useState('');
   const [screenshotData, setScreenshotData] = useState('');
   const [formError, setFormError] = useState('');
@@ -41,12 +41,28 @@ export default function PlansPage({ onNavigate }) {
     return () => unsub();
   }, []);
 
+  // Check if user currently has an active 1 Year Pro plan (highest tier)
+  const hasActiveAnnualPlan = Boolean(
+    userIsPaid &&
+    currentPlan &&
+    currentPlan.planId === 'plan_1y' &&
+    currentPlan.expiresAt &&
+    new Date(currentPlan.expiresAt).getTime() > Date.now()
+  );
+
   const handleSelectPlan = (p) => {
+    // If 1 Year Pro is already active, prevent buying any plan until it expires
+    if (hasActiveAnnualPlan) {
+      setFormError('You already have an active 1 Year Pro plan! You have full access and do not need any other plan until it expires.');
+      return;
+    }
     setSelectedPlan(p);
     setFormError('');
     // Smoothly scroll down to the payment section directly below
     setTimeout(() => {
-      paymentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (paymentSectionRef.current) {
+        paymentSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     }, 100);
   };
 
@@ -164,36 +180,52 @@ export default function PlansPage({ onNavigate }) {
           ACTIVE MEMBERSHIP BANNER (When Plan is Active)
          ======================================================== */}
       {userIsPaid && currentPlan && (
-        <div className="p-5 sm:p-6 rounded-3xl bg-white border-2 border-emerald-500 shadow-sm">
+        <div className={`p-4 sm:p-6 rounded-3xl bg-white border-2 shadow-sm ${hasActiveAnnualPlan ? 'border-neutral-900 ring-4 ring-neutral-900/5' : 'border-emerald-500'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start sm:items-center gap-3.5">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
-                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                </svg>
+              <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl text-white flex items-center justify-center shrink-0 shadow-sm ${hasActiveAnnualPlan ? 'bg-neutral-950' : 'bg-emerald-500'}`}>
+                {hasActiveAnnualPlan ? (
+                  <svg className="w-6 h-6 text-amber-300" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>
+                ) : (
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                )}
               </div>
               <div>
-                <span className="text-[10px] uppercase font-black tracking-wider text-emerald-700">
-                  Active Membership
-                </span>
-                <h3 className="text-lg font-black text-neutral-950">
-                  {currentPlan.name || '30 Days Pass'}
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] uppercase font-black tracking-wider ${hasActiveAnnualPlan ? 'text-neutral-900' : 'text-emerald-700'}`}>
+                    {hasActiveAnnualPlan ? 'Top Tier Active' : 'Active Membership'}
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-black text-neutral-950">
+                  {currentPlan.name || 'Pro Membership'}
                 </h3>
-                <p className="text-xs text-neutral-500 font-medium mt-0.5">
+                <p className="text-xs text-neutral-500 font-medium mt-0.5 leading-relaxed">
                   Valid until:{' '}
                   <strong className="text-neutral-900">
                     {currentPlan.expiresAt ? new Date(currentPlan.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Active'}
                   </strong>
-                  {' '}· All emails unlocked with 0% commission.
+                  {' '}· All 10,000+ creator business emails unlocked.
                 </p>
               </div>
             </div>
 
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-emerald-100 text-emerald-800 text-xs font-black self-start sm:self-center">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Full Access Active
-            </span>
+            <div className="self-start sm:self-center">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${hasActiveAnnualPlan ? 'bg-neutral-900 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+                {hasActiveAnnualPlan ? '👑 1 Year Pro Active' : '✓ Full Access Active'}
+              </span>
+            </div>
           </div>
+
+          {hasActiveAnnualPlan && (
+            <div className="mt-3.5 pt-3.5 border-t border-[#F0EAE3] text-xs text-neutral-600 font-medium">
+              💡 <strong className="text-neutral-950">1 Year Pro plan active hai:</strong> Aapke paas already maximum plan hai. Iske expire hone se pehle aapko koi aur plan buy karne ki zaroorat nahi hai.
+            </div>
+          )}
         </div>
       )}
 
@@ -205,50 +237,70 @@ export default function PlansPage({ onNavigate }) {
           Choose Your Plan
         </h2>
         <p className="text-xs sm:text-sm text-neutral-600 font-medium mt-1">
-          Instant activation via UPI. Select a plan below to pay and unlock creator emails immediately.
+          {hasActiveAnnualPlan 
+            ? 'Aapka 1 Year Pro plan active hai. Aapke paas sabhi creators ke verified emails unlocked hain.'
+            : 'Select a plan below to reveal the instant UPI QR code & payment options.'}
         </p>
       </div>
 
       {/* ========================================================
           TWO PLAN CARDS (WITH ₹199 CUT TO ₹30)
          ======================================================== */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 max-w-4xl">
         {PLANS.map((p) => {
           const isSelected = selectedPlan?.id === p.id;
           const is30Days = p.id === 'plan_30d';
+          const isCurrentActive = userIsPaid && currentPlan?.planId === p.id;
+          const isLockedByAnnual = hasActiveAnnualPlan;
 
           return (
             <div
               key={p.id}
-              onClick={() => handleSelectPlan(p)}
-              className={`rounded-3xl p-6 sm:p-8 flex flex-col justify-between border-2 transition-all relative bg-white cursor-pointer ${
-                isSelected
-                  ? 'border-[#FF3358] ring-4 ring-[#FF3358]/10 shadow-lg'
-                  : 'border-[#EAE3DB] hover:border-neutral-900 shadow-sm'
+              onClick={() => {
+                if (!isLockedByAnnual) {
+                  handleSelectPlan(p);
+                }
+              }}
+              className={`rounded-3xl p-5 sm:p-7 flex flex-col justify-between border-2 transition-all relative bg-white ${
+                isLockedByAnnual
+                  ? isCurrentActive
+                    ? 'border-neutral-900 ring-2 ring-neutral-900/10 opacity-95 shadow-sm'
+                    : 'border-[#EAE3DB] opacity-60 cursor-not-allowed bg-[#FAF6F2]'
+                  : isSelected
+                  ? 'border-[#FF3358] ring-4 ring-[#FF3358]/10 shadow-lg cursor-pointer'
+                  : 'border-[#EAE3DB] hover:border-neutral-900 shadow-sm cursor-pointer hover:shadow-md'
               }`}
             >
               {/* Badge */}
               {is30Days && (
-                <div className="absolute -top-3 right-6 px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-[#FF3358] text-white shadow-sm">
-                  Limited Deal (₹199 Cut)
+                <div className="absolute -top-3 right-4 sm:right-6 px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-[#FF3358] text-white shadow-sm">
+                  {isLockedByAnnual ? 'Included in 1 Year Pro' : 'Limited Deal (₹199 Cut)'}
                 </div>
               )}
               {p.badge && !is30Days && (
-                <div className="absolute -top-3 right-6 px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-neutral-900 text-white shadow-sm">
-                  {p.badge}
+                <div className="absolute -top-3 right-4 sm:right-6 px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-neutral-900 text-white shadow-sm">
+                  {isCurrentActive ? 'Your Active Plan' : p.badge}
                 </div>
               )}
 
               <div>
-                <h3 className="text-xl font-black text-neutral-950">
-                  {p.name}
-                </h3>
-                <p className="text-xs text-neutral-500 font-medium mt-1 min-h-[30px]">
+                <div className="flex items-baseline justify-between gap-2">
+                  <h3 className="text-xl font-black text-neutral-950">
+                    {p.name}
+                  </h3>
+                  {isCurrentActive && (
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                      Active
+                    </span>
+                  )}
+                </div>
+
+                <p className="text-xs text-neutral-500 font-medium mt-1 min-h-[30px] leading-relaxed">
                   {p.description}
                 </p>
 
                 {/* Price Display with ₹199 Cut */}
-                <div className="my-5 flex items-baseline gap-2.5">
+                <div className="my-4 sm:my-5 flex items-baseline gap-2 sm:gap-2.5 flex-wrap">
                   {is30Days && (
                     <span className="text-2xl sm:text-3xl font-bold text-neutral-400 line-through">
                       ₹199
@@ -259,7 +311,7 @@ export default function PlansPage({ onNavigate }) {
                       ₹{p.originalPrice}
                     </span>
                   )}
-                  <span className="text-4xl sm:text-5xl font-black text-neutral-950 tabular-nums">
+                  <span className="text-4xl sm:text-5xl font-black text-neutral-950 tabular-nums tracking-tight">
                     ₹{p.price}
                   </span>
                   <span className="text-xs text-neutral-500 font-bold">
@@ -268,38 +320,52 @@ export default function PlansPage({ onNavigate }) {
                 </div>
 
                 {/* Features */}
-                <ul className="space-y-2.5 text-xs text-neutral-700 font-semibold pt-3 border-t border-[#F0EAE3]">
+                <ul className="space-y-2 text-xs text-neutral-700 font-semibold pt-3 border-t border-[#F0EAE3]">
                   {p.features.map((f, i) => (
                     <li key={i} className="flex items-center gap-2.5">
                       <svg className="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
-                      <span>{f}</span>
+                      <span className="leading-tight">{f}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
               {/* Selection Button */}
-              <div className="mt-8 pt-4">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectPlan(p);
-                  }}
-                  className={`w-full py-3.5 px-4 rounded-2xl text-xs font-black shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 ${
-                    isSelected
-                      ? 'bg-[#FF3358] text-white shadow-md'
-                      : 'bg-neutral-100 text-neutral-800 hover:bg-neutral-200'
-                  }`}
-                >
-                  <span>{isSelected ? `Selected: Pay ₹${p.price} Below ↓` : `Select ₹${p.price} Plan`}</span>
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <line x1="12" y1="5" x2="12" y2="19" />
-                    <polyline points="19 12 12 19 5 12" />
-                  </svg>
-                </button>
+              <div className="mt-6 sm:mt-8 pt-3 border-t border-[#F0EAE3]">
+                {isLockedByAnnual ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full py-3.5 px-4 rounded-2xl text-xs font-black bg-neutral-200 text-neutral-500 cursor-not-allowed flex items-center justify-center gap-1.5"
+                  >
+                    {isCurrentActive ? (
+                      <span>Active Plan (Till {currentPlan?.expiresAt ? new Date(currentPlan.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Expiry'})</span>
+                    ) : (
+                      <span>Covered in your 1 Year Pro Plan</span>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSelectPlan(p);
+                    }}
+                    className={`w-full py-3.5 px-4 rounded-2xl text-xs font-black shadow-sm transition-all cursor-pointer flex items-center justify-center gap-2 ${
+                      isSelected
+                        ? 'bg-[#FF3358] text-white shadow-md ring-2 ring-[#FF3358]/20'
+                        : 'bg-neutral-950 text-white hover:bg-neutral-800'
+                    }`}
+                  >
+                    <span>{isSelected ? `Selected: Pay ₹${p.price} Below ↓` : `Select ₹${p.price} Plan →`}</span>
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <polyline points="19 12 12 19 5 12" />
+                    </svg>
+                  </button>
+                )}
               </div>
             </div>
           );
@@ -307,75 +373,68 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* ========================================================
-          PAYMENT SECTION: OPENS DIRECTLY BELOW PLAN CARDS
+          PAYMENT SECTION: ONLY OPENS ONCE USER SELECTS A PLAN
          ======================================================== */}
-      {selectedPlan && (
+      {selectedPlan && !hasActiveAnnualPlan && (
         <div
           ref={paymentSectionRef}
           id="payment-scene"
-          className="mt-6 p-6 sm:p-9 rounded-[32px] bg-white border-2 border-neutral-900 shadow-xl max-w-3xl animate-fadeIn"
+          className="mt-6 sm:mt-8 p-5 sm:p-8 rounded-[28px] sm:rounded-[36px] bg-white border-2 border-neutral-900 shadow-xl max-w-3xl animate-fadeIn"
         >
           {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-[#F0EAE3] gap-2 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 sm:pb-5 border-b border-[#F0EAE3] gap-2.5 mb-5 sm:mb-6">
             <div>
               <span className="text-[11px] font-black uppercase tracking-wider text-[#FF3358] block mb-0.5">
                 Instant UPI Payment
               </span>
-              <h3 className="text-xl sm:text-2xl font-black text-neutral-950">
+              <h3 className="text-xl sm:text-2xl font-black text-neutral-950 tracking-tight">
                 Pay ₹{selectedPlan.price} for {selectedPlan.name}
               </h3>
             </div>
-            <div className="text-left sm:text-right">
+            <div className="flex items-center gap-2 self-start sm:self-center">
               <span className="inline-block px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">
-                ⚡ Instant Plan Activation
+                ⚡ Instant Activation
               </span>
+              <button
+                type="button"
+                onClick={() => setSelectedPlan(null)}
+                className="p-1 px-2.5 rounded-lg text-xs font-bold text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
+                title="Close payment section"
+              >
+                ✕ Cancel
+              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
             
-            {/* LEFT: LARGE HIGH-CONTRAST UPI QR CODE */}
+            {/* LEFT: QR CODE (Responsive on Mobile & Desktop) */}
             <div className="md:col-span-5 flex flex-col items-center text-center">
-              <div className="p-4 bg-white rounded-3xl shadow-lg border-2 border-[#EAE3DB] inline-block">
+              <div className="p-3.5 sm:p-4 bg-white rounded-3xl shadow-md border-2 border-[#EAE3DB] inline-block max-w-[220px]">
                 <QRCodeSVG
                   value={upiUrl}
-                  size={200}
+                  size={190}
                   level="H"
                   includeMargin={true}
+                  className="w-full h-auto"
                 />
               </div>
-              <span className="text-xs font-bold text-neutral-700 mt-3 block">
-                Scan with GPay, PhonePe, Paytm, etc.
+              <span className="text-xs font-bold text-neutral-700 mt-2.5 block leading-tight">
+                Scan with any UPI App
+              </span>
+              <span className="text-[11px] text-neutral-400 font-semibold mt-0.5 block">
+                (Google Pay, PhonePe, Paytm, BHIM)
               </span>
             </div>
 
-            {/* RIGHT: UPI DETAILS, PAY BY ANY UPI APP BUTTON, SCREENSHOT UPLOAD */}
-            <div className="md:col-span-7 space-y-5">
+            {/* RIGHT: MOBILE UPI APP BUTTON, UPI ID, SCREENSHOT UPLOAD */}
+            <div className="md:col-span-7 space-y-4 sm:space-y-5">
               
-              {/* Official UPI ID box with copy button */}
-              <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
-                <span className="text-xs font-bold text-neutral-600 block mb-1">
-                  Official UPI ID:
-                </span>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="font-mono text-base font-black text-neutral-950 select-all">
-                    {UPI_ID}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={handleCopyUpi}
-                    className="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-white border border-[#EAE3DB] text-neutral-900 hover:border-black transition-colors shrink-0 shadow-xs cursor-pointer"
-                  >
-                    {copiedUpi ? 'Copied ✓' : 'Copy UPI'}
-                  </button>
-                </div>
-              </div>
-
-              {/* PAY BY ANY UPI APP BUTTON (Redirects directly into installed UPI app) */}
+              {/* PRIMARY MOBILE UPI APP BUTTON (Most convenient on phone) */}
               <div>
                 <a
                   href={upiUrl}
-                  className="w-full py-4 px-6 rounded-2xl text-center text-sm sm:text-base font-black text-white bg-gradient-to-r from-[#FF3358] to-[#E62E7A] hover:opacity-95 shadow-lg shadow-rose-500/25 flex items-center justify-center gap-2.5 transition-transform active:scale-98 cursor-pointer"
+                  className="w-full py-4 px-5 rounded-2xl text-center text-sm sm:text-base font-black text-white bg-gradient-to-r from-[#FF3358] via-[#FF1F48] to-[#E62E7A] hover:opacity-95 shadow-lg shadow-rose-500/25 flex items-center justify-center gap-2.5 transition-transform active:scale-98 cursor-pointer"
                 >
                   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
                     <rect x="5" y="2" width="14" height="20" rx="3" />
@@ -384,8 +443,27 @@ export default function PlansPage({ onNavigate }) {
                   <span>PAY BY ANY UPI APP (Click to Open)</span>
                 </a>
                 <span className="text-[11px] text-neutral-500 font-semibold mt-1.5 block text-center">
-                  Opens Google Pay, PhonePe, Paytm, or BHIM directly on your device.
+                  Mobile users: Tap to open Google Pay, PhonePe, or Paytm directly.
                 </span>
+              </div>
+
+              {/* Official UPI ID box with copy button */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
+                <span className="text-[11px] uppercase tracking-wider font-extrabold text-neutral-500 block mb-1">
+                  Official UPI ID:
+                </span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-mono text-sm sm:text-base font-black text-neutral-950 select-all truncate">
+                    {UPI_ID}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleCopyUpi}
+                    className="px-3 py-1.5 rounded-xl text-xs font-black bg-white border border-[#EAE3DB] text-neutral-900 hover:border-black transition-colors shrink-0 shadow-xs cursor-pointer active:scale-95"
+                  >
+                    {copiedUpi ? 'Copied ✓' : 'Copy UPI'}
+                  </button>
+                </div>
               </div>
 
               {/* MANDATORY SCREENSHOT UPLOAD */}
@@ -405,10 +483,10 @@ export default function PlansPage({ onNavigate }) {
                   
                   {screenshotName ? (
                     <div className="flex items-center justify-center gap-2 text-emerald-700 font-extrabold text-xs">
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
-                      <span className="truncate max-w-[220px]">Attached: {screenshotName}</span>
+                      <span className="truncate max-w-[200px] sm:max-w-[240px]">Attached: {screenshotName}</span>
                       <span className="text-[10px] text-neutral-500 underline font-normal ml-1">Change</span>
                     </div>
                   ) : (
@@ -424,7 +502,7 @@ export default function PlansPage({ onNavigate }) {
                         Click or Drop Payment Screenshot Here
                       </span>
                       <span className="text-[10px] text-neutral-500 font-medium block">
-                        Supports PNG, JPG, WEBP receipt screenshots
+                        Upload receipt screenshot to verify & activate instantly
                       </span>
                     </div>
                   )}
@@ -444,7 +522,7 @@ export default function PlansPage({ onNavigate }) {
               )}
 
               {/* BIG "PAYMENT COMPLETE" CONFIRMATION BUTTON */}
-              <div className="pt-2">
+              <div className="pt-1">
                 <button
                   type="button"
                   onClick={handleCompletePayment}
@@ -454,9 +532,7 @@ export default function PlansPage({ onNavigate }) {
                   {isProcessing ? (
                     <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <>
-                      <span>Payment Complete ✓ (Activate Plan)</span>
-                    </>
+                    <span>Payment Complete ✓ (Activate Plan)</span>
                   )}
                 </button>
               </div>
@@ -467,25 +543,13 @@ export default function PlansPage({ onNavigate }) {
         </div>
       )}
 
-      {/* QUICK DEMO PREVIEW (For testing purposes) */}
-      <div className="pt-6 border-t border-[#EAE3DB] flex flex-wrap items-center justify-between gap-3 text-xs text-neutral-500 font-semibold">
+      {/* FOOTER: BILLING INQUIRY ONLY (Clean, without demo button) */}
+      <div className="pt-6 border-t border-[#EAE3DB] flex items-center justify-between text-xs text-neutral-500 font-semibold">
         <div>
           <span>Billing inquiries: </span>
           <a href="mailto:support@youtuberfinder.com" className="text-neutral-900 hover:underline font-bold">
             support@youtuberfinder.com
           </a>
-        </div>
-        <div>
-          <button
-            type="button"
-            onClick={() => {
-              demoActivate(30);
-              setShowSuccessModal(true);
-            }}
-            className="text-xs text-[#FF3358] hover:underline font-bold bg-transparent border-0 cursor-pointer"
-          >
-            Demo preview: Instant 30-Day Activation
-          </button>
         </div>
       </div>
     </div>

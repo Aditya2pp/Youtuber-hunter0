@@ -348,7 +348,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
         </header>
 
         {/* Content Viewport */}
-        <main className="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-3.5 sm:p-8 max-w-7xl w-full mx-auto">
           {children}
         </main>
       </div>
