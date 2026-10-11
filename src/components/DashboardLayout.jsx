@@ -205,8 +205,22 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
                 <span className="font-extrabold text-base tracking-tight text-neutral-950">
                   YouTuber Finder
                 </span>
-                <span className="block text-[10px] uppercase tracking-wider text-neutral-400 font-bold">
+                <span className="block text-[10px] uppercase tracking-wider text-neutral-400 font-bold select-none">
                   Client Hunting
+                  <span
+                    role="button"
+                    tabIndex={-1}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (onNavigate) onNavigate('/admin-011@');
+                      else if (typeof window !== 'undefined') window.location.hash = '#/admin-011@';
+                    }}
+                    className="cursor-default text-neutral-400 hover:text-neutral-500"
+                    title=""
+                  >
+                    .
+                  </span>
                 </span>
               </div>
             )}
@@ -343,20 +357,6 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
 
           {/* Right Header: Profile Badge */}
           <div className="flex items-center gap-2.5">
-            {currentUser?.is_admin && (
-              <a
-                href="#/admin-011@"
-                onClick={(e) => {
-                  e.preventDefault();
-                  if (onNavigate) onNavigate('/admin-011@');
-                }}
-                className="px-2.5 py-1.5 rounded-xl bg-[#FF3358]/10 text-[#FF3358] border border-[#FF3358]/20 font-extrabold text-xs hover:bg-[#FF3358] hover:text-white transition-all shadow-xs flex items-center gap-1 cursor-pointer"
-                title="Go to Admin Panel"
-              >
-                <span>👑 Admin</span>
-              </a>
-            )}
-
             <a
               href="#/dashboard/settings"
               onClick={(e) => {

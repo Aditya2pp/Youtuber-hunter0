@@ -547,7 +547,8 @@ export default function AdminPage({ onNavigate }) {
                 type="text"
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
-                placeholder="Adminraja@"
+                placeholder="Enter admin username"
+                autoComplete="off"
                 autoCapitalize="none"
                 autoCorrect="off"
                 required
@@ -564,7 +565,8 @@ export default function AdminPage({ onNavigate }) {
                   type={showPassword ? 'text' : 'password'}
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
-                  placeholder="#/admin-011@Raja"
+                  placeholder="Enter admin password"
+                  autoComplete="off"
                   autoCapitalize="none"
                   autoCorrect="off"
                   required
@@ -912,14 +914,48 @@ export default function AdminPage({ onNavigate }) {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="pt-3 border-t border-[#EAE3DB] flex items-center gap-2">
+                      <div className="pt-3 border-t border-[#EAE3DB] flex flex-wrap items-center gap-2">
                         {isApproved ? (
-                          <div className="text-xs text-emerald-600 font-bold flex items-center gap-1.5 py-1.5">
-                            <span>✅ Plan confirmed & permanently active.</span>
+                          <div className="w-full flex items-center justify-between gap-2">
+                            <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
+                              ✅ Plan confirmed & active.
+                            </span>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => setUserPlanModal({ id: p.user_id, username: p.username || 'User', email: p.email })}
+                                className="px-2.5 py-1 text-xs font-bold rounded-lg border border-[#EAE3DB] bg-white hover:bg-neutral-50 text-neutral-800 cursor-pointer"
+                              >
+                                Modify Plan
+                              </button>
+                              <button
+                                onClick={() => handleRejectPayment(p.id)}
+                                disabled={loading}
+                                className="px-2.5 py-1 text-xs font-bold rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 cursor-pointer"
+                              >
+                                Reject
+                              </button>
+                            </div>
                           </div>
                         ) : isRejected ? (
-                          <div className="text-xs text-rose-600 font-bold flex items-center gap-1.5 py-1.5">
-                            <span>❌ Rejected & auto-activation blocked.</span>
+                          <div className="w-full flex items-center justify-between gap-2">
+                            <span className="text-xs text-rose-600 font-bold flex items-center gap-1">
+                              ❌ Rejected (Plan Reset to Free).
+                            </span>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => handleApprovePayment(p.id)}
+                                disabled={loading}
+                                className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 cursor-pointer"
+                              >
+                                Re-approve
+                              </button>
+                              <button
+                                onClick={() => setUserPlanModal({ id: p.user_id, username: p.username || 'User', email: p.email })}
+                                className="px-2.5 py-1 text-xs font-bold rounded-lg border border-[#EAE3DB] bg-white hover:bg-neutral-50 text-neutral-800 cursor-pointer"
+                              >
+                                Set Plan
+                              </button>
+                            </div>
                           </div>
                         ) : (
                           <>
@@ -936,6 +972,14 @@ export default function AdminPage({ onNavigate }) {
                               className="flex-1 py-2 px-3 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-300 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
                             >
                               <span>Reject & Remove Plan</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setUserPlanModal({ id: p.user_id, username: p.username || 'User', email: p.email })}
+                              className="py-2 px-3 bg-white hover:bg-neutral-50 text-neutral-800 border border-[#EAE3DB] rounded-xl text-xs font-bold transition-all cursor-pointer"
+                              title="Directly edit days"
+                            >
+                              ⚙️ Plan
                             </button>
                           </>
                         )}
@@ -1356,6 +1400,35 @@ export default function AdminPage({ onNavigate }) {
                 <span>❌ Remove Plan (Reset to Free)</span>
                 <span className="font-mono text-rose-700">0 Days</span>
               </button>
+
+              <div className="pt-3 border-t border-[#EAE3DB]">
+                <label className="block text-[11px] font-bold text-neutral-600 mb-1.5">
+                  Or enter custom active days:
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    id="admin-custom-plan-days"
+                    type="number"
+                    min="1"
+                    placeholder="e.g. 60 or 90"
+                    className="flex-1 px-3 py-2 bg-[#FAF6F2] rounded-xl border border-[#EAE3DB] text-xs font-bold outline-none text-neutral-900 focus:border-[#FF3358]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const inp = document.getElementById('admin-custom-plan-days');
+                      const val = parseInt(inp?.value, 10);
+                      if (val && val > 0) {
+                        handleSetPlan(userPlanModal.id, val);
+                      }
+                    }}
+                    disabled={loading}
+                    className="px-4 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+                  >
+                    Set Days
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="mt-6 flex justify-end">
