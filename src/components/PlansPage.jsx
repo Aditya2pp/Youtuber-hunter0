@@ -11,7 +11,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { PLANS, UPI_ID, UPI_NAME } from '../../lib/data.js';
-import { isPaid, plan, payment, submitPayment, subscribeStore } from '../../lib/store.js';
+import { me, isPaid, plan, payment, submitPayment, subscribeStore } from '../../lib/store.js';
 
 export default function PlansPage({ onNavigate }) {
   const [userIsPaid, setUserIsPaid] = useState(false);
@@ -98,6 +98,12 @@ export default function PlansPage({ onNavigate }) {
     // Screenshot is mandatory
     if (!screenshotData) {
       setFormError('Payment screenshot is required! Please upload your payment receipt.');
+      return;
+    }
+
+    const currentUser = me();
+    if (!currentUser || currentUser.isGuest) {
+      setFormError('Please log in or sign up first so your plan can be activated for your account.');
       return;
     }
 
@@ -510,13 +516,33 @@ export default function PlansPage({ onNavigate }) {
 
               {/* Error Message */}
               {formError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-bold flex items-center gap-2">
-                  <svg className="w-4 h-4 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                    <circle cx="12" cy="12" r="10" />
-                    <line x1="12" y1="8" x2="12" y2="12" />
-                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                  </svg>
-                  <span>{formError}</span>
+                <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold space-y-2">
+                  <div className="flex items-center gap-2">
+                    <svg className="w-4 h-4 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    <span>{formError}</span>
+                  </div>
+                  {formError.includes('log in or sign up') && (
+                    <div className="flex items-center gap-2 pt-1 pl-6">
+                      <button
+                        type="button"
+                        onClick={() => onNavigate ? onNavigate('/login') : (window.location.hash = '#/login')}
+                        className="px-3 py-1 bg-white border border-rose-300 text-rose-900 rounded-lg text-xs font-extrabold hover:bg-rose-100"
+                      >
+                        Go to Log In →
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onNavigate ? onNavigate('/signup') : (window.location.hash = '#/signup')}
+                        className="px-3 py-1 bg-[#FF3358] text-white rounded-lg text-xs font-extrabold hover:bg-[#FF1F48]"
+                      >
+                        Create Free Account →
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -10,7 +10,13 @@ import React, { useState, useEffect } from 'react';
 import { me, isPaid, plan, rejectedNotice, subscribeStore } from '../../lib/store.js';
 
 export default function DashboardLayout({ activeMenu = 'find', onNavigate, children }) {
-  const [currentUser, setCurrentUser] = useState(() => me());
+  const [currentUser, setCurrentUser] = useState(() => me() || {
+    id: 'guest',
+    username: 'Guest',
+    email: '',
+    is_admin: false,
+    isGuest: true,
+  });
   const [userIsPaid, setUserIsPaid] = useState(() => isPaid());
   const [userPlan, setUserPlan] = useState(() => plan());
   const [rejectionAlert, setRejectionAlert] = useState(() => rejectedNotice());
@@ -18,33 +24,21 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
 
-  // Check auth and plan status
+  // Check auth and plan status seamlessly
   useEffect(() => {
-    let redirectTimer = null;
-
     const checkState = () => {
       const u = me();
-      if (!u) {
-        // Give 800ms for localStorage / Supabase session to rehydrate before redirecting
-        if (!redirectTimer) {
-          redirectTimer = setTimeout(() => {
-            const recheck = me();
-            if (!recheck) {
-              if (onNavigate) {
-                onNavigate('/login');
-              } else if (typeof window !== 'undefined') {
-                window.location.hash = '#/login';
-              }
-            }
-          }, 800);
-        }
-        return;
+      if (u) {
+        setCurrentUser(u);
+      } else {
+        setCurrentUser({
+          id: 'guest',
+          username: 'Guest',
+          email: '',
+          is_admin: false,
+          isGuest: true,
+        });
       }
-      if (redirectTimer) {
-        clearTimeout(redirectTimer);
-        redirectTimer = null;
-      }
-      setCurrentUser(u);
       setUserIsPaid(isPaid());
       setUserPlan(plan());
       setRejectionAlert(rejectedNotice());
@@ -54,9 +48,8 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
     const unsub = subscribeStore(checkState);
     return () => {
       unsub();
-      if (redirectTimer) clearTimeout(redirectTimer);
     };
-  }, [onNavigate]);
+  }, []);
 
   // Window resize listener for 900px breakpoint
   useEffect(() => {
@@ -145,14 +138,6 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
       setMobileDrawerOpen(!mobileDrawerOpen);
     }
   };
-
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FAF6F2] text-neutral-500">
-        <div className="w-8 h-8 border-3 border-[#FF3358] border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex bg-[#FAF6F2] text-[#0D0A10] relative overflow-x-hidden">
@@ -341,28 +326,53 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
             </div>
           </div>
 
-          {/* Right Header: Profile Badge */}
+          {/* Right Header: Profile Badge or Guest Login */}
           <div className="flex items-center gap-2.5">
-            <a
-              href="#/dashboard/settings"
-              onClick={(e) => {
-                e.preventDefault();
-                if (onNavigate) onNavigate('/dashboard/settings');
-              }}
-              className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border border-[#EAE3DB] bg-white hover:border-black transition-all focus-visible:outline-2 focus-visible:outline-[#FF3358] shadow-xs"
-            >
-              <div className="w-7 h-7 rounded-full bg-neutral-900 text-white font-black text-xs flex items-center justify-center">
-                {currentUser?.username ? currentUser.username.charAt(0).toUpperCase() : 'U'}
+            {currentUser?.isGuest ? (
+              <div className="flex items-center gap-2">
+                <a
+                  href="#/login"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (onNavigate) onNavigate('/login');
+                  }}
+                  className="px-3 py-1.5 rounded-xl border border-[#EAE3DB] bg-white text-xs font-bold text-neutral-800 hover:border-black transition-colors"
+                >
+                  Log In
+                </a>
+                <a
+                  href="#/signup"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    if (onNavigate) onNavigate('/signup');
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl text-xs font-extrabold text-white bg-[#FF3358] hover:bg-[#FF1F48] shadow-xs transition-colors"
+                >
+                  Sign Up
+                </a>
               </div>
-              <div className="hidden sm:block text-left text-xs">
-                <span className="font-extrabold block text-neutral-900 max-w-[120px] truncate leading-tight">
-                  {currentUser?.username}
-                </span>
-                <span className="text-[10px] text-neutral-500 block font-semibold">
-                  {userIsPaid ? 'Pro Hunter' : 'Free Tier'}
-                </span>
-              </div>
-            </a>
+            ) : (
+              <a
+                href="#/dashboard/settings"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (onNavigate) onNavigate('/dashboard/settings');
+                }}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-2xl border border-[#EAE3DB] bg-white hover:border-black transition-all focus-visible:outline-2 focus-visible:outline-[#FF3358] shadow-xs"
+              >
+                <div className="w-7 h-7 rounded-full bg-neutral-900 text-white font-black text-xs flex items-center justify-center">
+                  {currentUser?.username ? currentUser.username.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="hidden sm:block text-left text-xs">
+                  <span className="font-extrabold block text-neutral-900 max-w-[120px] truncate leading-tight">
+                    {currentUser?.username}
+                  </span>
+                  <span className="text-[10px] text-neutral-500 block font-semibold">
+                    {userIsPaid ? 'Pro Hunter' : 'Free Tier'}
+                  </span>
+                </div>
+              </a>
+            )}
           </div>
         </header>
 
