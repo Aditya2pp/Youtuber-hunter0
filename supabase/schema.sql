@@ -156,32 +156,35 @@ CREATE POLICY "payments_admin_all"
   WITH CHECK (public.is_admin());
 
 -- STORAGE POLICIES FOR SCREENSHOTS BUCKET
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('screenshots', 'screenshots', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
 DROP POLICY IF EXISTS "storage_screenshot_insert" ON storage.objects;
 CREATE POLICY "storage_screenshot_insert"
   ON storage.objects
   FOR INSERT
-  TO authenticated
+  TO anon, authenticated
   WITH CHECK (
-    bucket_id = 'screenshots' AND
-    name LIKE (auth.uid()::text || '/%')
+    bucket_id = 'screenshots'
   );
 
-DROP POLICY IF EXISTS "storage_screenshot_admin_select" ON storage.objects;
-CREATE POLICY "storage_screenshot_admin_select"
+DROP POLICY IF EXISTS "storage_screenshot_select" ON storage.objects;
+CREATE POLICY "storage_screenshot_select"
   ON storage.objects
   FOR SELECT
-  TO authenticated
+  TO anon, authenticated
   USING (
-    bucket_id = 'screenshots' AND public.is_admin()
+    bucket_id = 'screenshots'
   );
 
 DROP POLICY IF EXISTS "storage_screenshot_admin_delete" ON storage.objects;
 CREATE POLICY "storage_screenshot_admin_delete"
   ON storage.objects
   FOR DELETE
-  TO authenticated
+  TO anon, authenticated
   USING (
-    bucket_id = 'screenshots' AND public.is_admin()
+    bucket_id = 'screenshots'
   );
 
 -- 6. AUTH SIGNUP TRIGGER (Automatically create profile when a user registers)

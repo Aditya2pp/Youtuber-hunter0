@@ -9,8 +9,8 @@ import { isPaid, savedIds, toggleSave, subscribeStore, getLiveCreators } from '.
 import CreatorCard from '../../lib/CreatorCard.js';
 
 export default function SavedPage({ onNavigate }) {
-  const [userIsPaid, setUserIsPaid] = useState(false);
-  const [savedList, setSavedList] = useState([]);
+  const [userIsPaid, setUserIsPaid] = useState(() => isPaid());
+  const [savedList, setSavedList] = useState(() => (Array.isArray(savedIds()) ? savedIds() : []));
   const [creatorsList, setCreatorsList] = useState(CREATORS);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function SavedPage({ onNavigate }) {
 
     const update = () => {
       setUserIsPaid(isPaid());
-      setSavedList(savedIds());
+      setSavedList(Array.isArray(savedIds()) ? savedIds() : []);
       fetchLive();
     };
 
@@ -42,10 +42,11 @@ export default function SavedPage({ onNavigate }) {
 
   const handleToggleSave = (id) => {
     const updated = toggleSave(id);
-    setSavedList(updated);
+    setSavedList(Array.isArray(updated) ? updated : savedIds());
   };
 
-  const savedCreators = creatorsList.filter((c) => savedList.includes(c.id));
+  const safeList = Array.isArray(savedList) ? savedList : [];
+  const savedCreators = creatorsList.filter((c) => safeList.includes(c.id));
 
   return (
     <div className="space-y-6">

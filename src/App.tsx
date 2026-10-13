@@ -18,6 +18,7 @@ import SavedPage from './components/SavedPage.jsx';
 import PlansPage from './components/PlansPage.jsx';
 import SettingsPage from './components/SettingsPage.jsx';
 import AdminPage from './components/AdminPage.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 
 export default function App() {
   const getCleanPath = () => {
@@ -79,49 +80,53 @@ export default function App() {
   };
 
   // Route matching
-  if (currentPath === '/login') {
-    return <AuthForm mode="login" onNavigate={navigate} />;
-  }
+  const renderRoute = () => {
+    if (currentPath === '/login') {
+      return <AuthForm mode="login" onNavigate={navigate} />;
+    }
 
-  if (currentPath === '/signup') {
-    return <AuthForm mode="signup" onNavigate={navigate} />;
-  }
+    if (currentPath === '/signup') {
+      return <AuthForm mode="signup" onNavigate={navigate} />;
+    }
 
-  if (currentPath === '/admin-011@' || currentPath === '/admin-011%40' || currentPath === '/admin') {
-    return <AdminPage onNavigate={navigate} />;
-  }
+    if (currentPath === '/admin-011@' || currentPath === '/admin-011%40' || currentPath === '/admin') {
+      return <AdminPage onNavigate={navigate} />;
+    }
 
-  if (currentPath === '/dashboard/saved') {
-    return (
-      <DashboardLayout activeMenu="saved" onNavigate={navigate}>
-        <SavedPage onNavigate={navigate} />
-      </DashboardLayout>
-    );
-  }
+    if (currentPath === '/dashboard/saved') {
+      return (
+        <DashboardLayout activeMenu="saved" onNavigate={navigate}>
+          <SavedPage onNavigate={navigate} />
+        </DashboardLayout>
+      );
+    }
 
-  if (currentPath === '/dashboard/plans') {
-    return (
-      <DashboardLayout activeMenu="plans" onNavigate={navigate}>
-        <PlansPage onNavigate={navigate} />
-      </DashboardLayout>
-    );
-  }
+    if (currentPath === '/dashboard/plans') {
+      return (
+        <DashboardLayout activeMenu="plans" onNavigate={navigate}>
+          <PlansPage onNavigate={navigate} />
+        </DashboardLayout>
+      );
+    }
 
-  if (currentPath === '/dashboard/settings') {
-    return (
-      <DashboardLayout activeMenu="settings" onNavigate={navigate}>
-        <SettingsPage onNavigate={navigate} />
-      </DashboardLayout>
-    );
-  }
+    if (currentPath === '/dashboard/settings') {
+      return (
+        <DashboardLayout activeMenu="settings" onNavigate={navigate}>
+          <SettingsPage onNavigate={navigate} />
+        </DashboardLayout>
+      );
+    }
 
-  if (currentPath === '/dashboard/find' || currentPath.startsWith('/dashboard')) {
-    return (
-      <DashboardLayout activeMenu="find" onNavigate={navigate}>
-        <FindPage onNavigate={navigate} />
-      </DashboardLayout>
-    );
-  }
+    if (currentPath === '/dashboard/find' || currentPath.startsWith('/dashboard')) {
+      return (
+        <DashboardLayout activeMenu="find" onNavigate={navigate}>
+          <FindPage onNavigate={navigate} />
+        </DashboardLayout>
+      );
+    }
 
-  return <LandingPage onNavigate={navigate} />;
+    return <LandingPage onNavigate={navigate} />;
+  };
+
+  return <ErrorBoundary>{renderRoute()}</ErrorBoundary>;
 }

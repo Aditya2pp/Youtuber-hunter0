@@ -21,8 +21,8 @@ export default function FindPage({ onNavigate }) {
     q: '',
   });
 
-  const [userIsPaid, setUserIsPaid] = useState(false);
-  const [savedList, setSavedList] = useState([]);
+  const [userIsPaid, setUserIsPaid] = useState(() => isPaid());
+  const [savedList, setSavedList] = useState(() => (Array.isArray(savedIds()) ? savedIds() : []));
   const [creatorsList, setCreatorsList] = useState(CREATORS);
 
   useEffect(() => {
@@ -40,7 +40,7 @@ export default function FindPage({ onNavigate }) {
 
     const update = () => {
       setUserIsPaid(isPaid());
-      setSavedList(savedIds());
+      setSavedList(Array.isArray(savedIds()) ? savedIds() : []);
       fetchLive();
     };
 
@@ -72,7 +72,7 @@ export default function FindPage({ onNavigate }) {
 
   const handleToggleSave = (id) => {
     const updated = toggleSave(id);
-    setSavedList(updated);
+    setSavedList(Array.isArray(updated) ? updated : savedIds());
   };
 
   // Filter creators from dynamic live database
@@ -293,7 +293,7 @@ export default function FindPage({ onNavigate }) {
               creator={creator}
               index={index}
               isPaid={userIsPaid}
-              isSaved={savedList.includes(creator.id)}
+              isSaved={Array.isArray(savedList) && savedList.includes(creator.id)}
               onToggleSave={handleToggleSave}
               onNavigate={onNavigate}
             />

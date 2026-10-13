@@ -10,10 +10,10 @@ import React, { useState, useEffect } from 'react';
 import { me, isPaid, plan, rejectedNotice, subscribeStore } from '../../lib/store.js';
 
 export default function DashboardLayout({ activeMenu = 'find', onNavigate, children }) {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userIsPaid, setUserIsPaid] = useState(false);
-  const [userPlan, setUserPlan] = useState(null);
-  const [rejectionAlert, setRejectionAlert] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => me());
+  const [userIsPaid, setUserIsPaid] = useState(() => isPaid());
+  const [userPlan, setUserPlan] = useState(() => plan());
+  const [rejectionAlert, setRejectionAlert] = useState(() => rejectedNotice());
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
@@ -25,7 +25,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
     const checkState = () => {
       const u = me();
       if (!u) {
-        // Give 450ms for localStorage / Supabase session to rehydrate before redirecting
+        // Give 800ms for localStorage / Supabase session to rehydrate before redirecting
         if (!redirectTimer) {
           redirectTimer = setTimeout(() => {
             const recheck = me();
@@ -36,7 +36,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
                 window.location.hash = '#/login';
               }
             }
-          }, 450);
+          }, 800);
         }
         return;
       }
@@ -205,22 +205,8 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
                 <span className="font-extrabold text-base tracking-tight text-neutral-950">
                   YouTuber Finder
                 </span>
-                <span className="block text-[10px] uppercase tracking-wider text-neutral-400 font-bold select-none">
+                <span className="block text-[10px] uppercase tracking-wider text-neutral-400 font-bold">
                   Client Hunting
-                  <span
-                    role="button"
-                    tabIndex={-1}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      if (onNavigate) onNavigate('/admin-011@');
-                      else if (typeof window !== 'undefined') window.location.hash = '#/admin-011@';
-                    }}
-                    className="cursor-default text-neutral-400 hover:text-neutral-500"
-                    title=""
-                  >
-                    .
-                  </span>
                 </span>
               </div>
             )}
