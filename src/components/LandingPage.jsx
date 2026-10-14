@@ -8,11 +8,13 @@
 import React, { useState, useEffect } from 'react';
 import { me } from '../../lib/store.js';
 import { PLANS } from '../../lib/data.js';
+import { getTheme, toggleTheme } from '../../lib/theme.js';
 
 export default function LandingPage({ onNavigate }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
+  const [themeState, setThemeState] = useState(() => getTheme());
 
   // Interactive search state for the hero card
   const [heroSearchQuery, setHeroSearchQuery] = useState('');
@@ -20,6 +22,11 @@ export default function LandingPage({ onNavigate }) {
 
   useEffect(() => {
     setCurrentUser(me());
+    const onThemeChange = (e) => {
+      if (e.detail?.theme) setThemeState(e.detail.theme);
+    };
+    window.addEventListener('theme-change', onThemeChange);
+    return () => window.removeEventListener('theme-change', onThemeChange);
   }, []);
 
   const handleNavClick = (path, e) => {
@@ -186,6 +193,19 @@ export default function LandingPage({ onNavigate }) {
 
         {/* Right: Round arrow circle / profile icon */}
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => {
+              const next = toggleTheme();
+              setThemeState(next);
+            }}
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-[#D8CFC5] bg-white flex items-center justify-center text-neutral-800 hover:border-black shadow-xs transition-all hover:scale-105 cursor-pointer"
+            title="Toggle Dark / Light Theme"
+            aria-label="Toggle theme"
+          >
+            <span className="text-base">{themeState === 'dark' ? '☀️' : '🌙'}</span>
+          </button>
+
           {currentUser ? (
             <a
               href="#/dashboard/settings"

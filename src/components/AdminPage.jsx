@@ -18,7 +18,9 @@ import {
   adminDeleteCreator,
   adminBulkUpsertCreators,
   adminExportAllCreators,
+  getStoragePublicUrl,
 } from '../../lib/store.js';
+import { getTheme, toggleTheme } from '../../lib/theme.js';
 
 // Format relative time: "Registered 2 mins ago / 3 hrs ago / 5 days ago"
 function timeAgo(dateString) {
@@ -114,6 +116,17 @@ export default function AdminPage({ onNavigate }) {
 
   // CSV Import State
   const [csvPreviewModal, setCsvPreviewModal] = useState(null); // { validRows, errors, fileName }
+
+  // Theme state
+  const [themeState, setThemeState] = useState(() => getTheme());
+
+  useEffect(() => {
+    const onThemeChange = (e) => {
+      if (e.detail?.theme) setThemeState(e.detail.theme);
+    };
+    window.addEventListener('theme-change', onThemeChange);
+    return () => window.removeEventListener('theme-change', onThemeChange);
+  }, []);
 
   // Sync auth state
   useEffect(() => {
@@ -637,6 +650,18 @@ export default function AdminPage({ onNavigate }) {
 
           <div className="flex items-center gap-2.5">
             <button
+              type="button"
+              onClick={() => {
+                const next = toggleTheme();
+                setThemeState(next);
+              }}
+              className="px-3 py-2 text-xs font-bold rounded-xl border border-[#EAE3DB] bg-white hover:bg-neutral-50 text-neutral-800 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+              title="Toggle Dark / Light Mode"
+            >
+              <span>{themeState === 'dark' ? '☀️ Light' : '🌙 Dark'}</span>
+            </button>
+
+            <button
               onClick={() => onNavigate ? onNavigate('/dashboard/find') : (window.location.hash = '#/dashboard/find')}
               className="px-3.5 py-2 text-xs font-bold rounded-xl border border-[#EAE3DB] bg-white hover:bg-neutral-50 text-neutral-800 transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
             >
@@ -822,12 +847,17 @@ export default function AdminPage({ onNavigate }) {
                   const isApproved = p.status === 'approved';
                   const isRejected = p.status === 'rejected';
 
+                  const rawScreenshot = p.signedScreenshotUrl || p.screenshot_path || p.screenshot || '';
+                  const screenshotSrc = rawScreenshot.startsWith('data:') || rawScreenshot.startsWith('http://') || rawScreenshot.startsWith('https://')
+                    ? rawScreenshot
+                    : (rawScreenshot ? getStoragePublicUrl(rawScreenshot) : '');
+
                   return (
                     <div
                       key={p.id}
                       className={`bg-white rounded-2xl border p-4 sm:p-5 shadow-xs flex flex-col justify-between transition-all ${
                         isAuto || isPending
-                          ? 'border-amber-300 ring-2 ring-amber-200/50'
+                          ? 'border-amber-400 ring-2 ring-amber-300/40'
                           : 'border-[#EAE3DB]'
                       }`}
                     >
@@ -886,24 +916,72 @@ export default function AdminPage({ onNavigate }) {
 
                         {/* Screenshot thumbnail section */}
                         <div className="mb-4">
-                          <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider block mb-1.5">
-                            Payment Screenshot:
-                          </span>
-                          {p.signedScreenshotUrl ? (
-                            <div className="relative group rounded-xl overflow-hidden border border-[#EAE3DB] bg-neutral-100 h-36 max-w-xs cursor-pointer">
-                              <img
-                                src={p.signedScreenshotUrl}
-                                alt="Payment Slip"
-                                className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform"
-                                onClick={() => setViewScreenshotModal(p.signedScreenshotUrl)}
-                              />
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+                              Payment Screenshot:
+                            </span>
+                            {screenshotSrc && (
                               <button
                                 type="button"
-                                onClick={() => setViewScreenshotModal(p.signedScreenshotUrl)}
-                                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
+                                onClick={() => setViewScreenshotModal(screenshotSrc)}
+                                className="text-[11px] font-bold text-[#FF3358] hover:underline cursor-pointer"
                               >
-                                🔍 Tap to Enlarge
+                                View Large ↗
                               </button>
+                            )}
+                          </div>
+
+                          {screenshotSrc ? (
+                            <div className="space-y-1.5">
+                              <div
+                                onClick={() => setViewScreenshotModal(screenshotSrc)}
+                                className="relative group rounded-xl overflow-hidden border border-[#EAE3DB] bg-neutral-100 h-36 max-w-xs cursor-pointer shadow-xs"
+                              >
+                                <img
+                                  src={screenshotSrc}
+                                  alt="Payment Slip"
+                                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform"
+                                  onError={(e) => {
+                                    if (p.screenshot_path && !e.target.dataset.triedPublic) {
+                                      e.target.dataset.triedPublic = 'true';
+                                      const pub = getStoragePublicUrl(p.screenshot_path);
+                                      if (pub && pub !== screenshotSrc) {
+                                        e.target.src = pub;
+                                        return;
+                                      }
+                                    }
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  onClick={(ev) => {
+                                    ev.stopPropagation();
+                                    setViewScreenshotModal(screenshotSrc);
+                                  }}
+                                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
+                                >
+                                  🔍 Tap to Enlarge
+                                </button>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setViewScreenshotModal(screenshotSrc)}
+                                  className="text-[11px] font-bold text-neutral-700 hover:text-neutral-950 flex items-center gap-1 cursor-pointer"
+                                >
+                                  <span>🔍 Full Slip</span>
+                                </button>
+                                {screenshotSrc.startsWith('http') && (
+                                  <a
+                                    href={screenshotSrc}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[11px] font-bold text-[#FF3358] hover:underline"
+                                  >
+                                    Direct Link ↗
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           ) : (
                             <div className="text-xs text-neutral-400 italic py-2">
@@ -1334,29 +1412,54 @@ export default function AdminPage({ onNavigate }) {
                 ✕
               </button>
             </div>
-            <div className="p-4 overflow-y-auto flex-1 flex items-center justify-center bg-neutral-950">
+            <div className="p-4 overflow-y-auto flex-1 flex flex-col items-center justify-center bg-neutral-950 min-h-[300px]">
               <img
                 src={viewScreenshotModal}
                 alt="Enlarged Payment Slip"
-                className="max-h-[70vh] object-contain rounded-lg"
+                className="max-h-[70vh] max-w-full object-contain rounded-lg shadow-lg"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  const fb = e.target.parentElement?.querySelector('.modal-img-error');
+                  if (fb) fb.style.display = 'flex';
+                }}
               />
+              <div className="modal-img-error hidden flex-col items-center justify-center p-8 text-center text-white">
+                <span className="text-4xl mb-2">⚠️</span>
+                <p className="font-bold text-sm">Image preview could not load directly in frame.</p>
+                <p className="text-xs text-neutral-400 mt-1 max-w-sm">
+                  You can click below to open the authentic payment receipt directly in a new browser tab.
+                </p>
+                <a
+                  href={viewScreenshotModal}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-4 px-4 py-2 bg-[#FF3358] text-white rounded-xl text-xs font-bold hover:bg-[#FF1F48]"
+                >
+                  Open Direct Link ↗
+                </a>
+              </div>
             </div>
-            <div className="p-4 border-t border-[#EAE3DB] flex justify-end gap-2 bg-[#FAF6F2]">
-              <a
-                href={viewScreenshotModal}
-                target="_blank"
-                rel="noreferrer"
-                download="payment_slip.jpg"
-                className="px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-bold hover:bg-neutral-800 transition-all"
-              >
-                Open in New Tab
-              </a>
-              <button
-                onClick={() => setViewScreenshotModal(null)}
-                className="px-4 py-2 bg-white border border-[#EAE3DB] text-neutral-800 rounded-xl text-xs font-bold hover:bg-neutral-50"
-              >
-                Close
-              </button>
+            <div className="p-4 border-t border-[#EAE3DB] flex flex-wrap items-center justify-between gap-2 bg-[#FAF6F2]">
+              <span className="text-xs text-neutral-500 font-medium truncate max-w-xs">
+                Receipt Verification
+              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={viewScreenshotModal}
+                  target="_blank"
+                  rel="noreferrer"
+                  download="payment_slip.jpg"
+                  className="px-4 py-2 bg-neutral-900 text-white rounded-xl text-xs font-bold hover:bg-neutral-800 transition-all cursor-pointer shadow-xs border border-neutral-700"
+                >
+                  Open in New Tab ↗
+                </a>
+                <button
+                  onClick={() => setViewScreenshotModal(null)}
+                  className="px-4 py-2 bg-white border border-[#EAE3DB] text-neutral-800 rounded-xl text-xs font-bold hover:bg-neutral-50 cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

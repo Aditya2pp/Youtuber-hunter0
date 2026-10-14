@@ -38,17 +38,29 @@
   --dash-topbar: rgba(250, 246, 242, 0.92);
 }
 
+html.dark,
+[data-theme="dark"],
 @media (prefers-color-scheme: dark) {
-  :root {
-    --dash-bg: #141210;
-    --dash-card: #1F1B18;
-    --dash-card-hover: #26221E;
-    --dash-border: #332D28;
-    --dash-border-subtle: #3D3630;
-    --dash-ink: #F7F4F0;
-    --dash-muted: #9E948B;
-    --dash-sidebar: #191613;
-    --dash-topbar: rgba(20, 18, 16, 0.92);
+  :root:not(.light) {
+    --bg-page: #13100E;
+    --bg-card: #1D1814;
+    --bg-card-subtle: #26201B;
+    --border-light: #382F26;
+    --border-focus: #FF385C;
+    
+    --text-dark: #FAF6F2;
+    --text-body: #D4CCC2;
+    --text-muted: #9E9387;
+    
+    --dash-bg: #13100E;
+    --dash-card: #1D1814;
+    --dash-card-hover: #26201B;
+    --dash-border: #382F26;
+    --dash-border-subtle: #45392F;
+    --dash-ink: #FAF6F2;
+    --dash-muted: #9E9387;
+    --dash-sidebar: #171310;
+    --dash-topbar: rgba(19, 16, 14, 0.94);
   }
 }
 
@@ -67,6 +79,221 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   background-color: var(--bg-page);
+  color: var(--text-dark);
+}
+
+/* ====================================================================
+   DARK MODE STYLES & HIGH-VISIBILITY BUTTONS
+   ==================================================================== */
+html.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+html.dark body,
+[data-theme="dark"] body {
+  background-color: #13100E !important;
+  color: #FAF6F2 !important;
+}
+
+/* Backgrounds & Cards in Dark Mode */
+.dark .bg-\[\#FAF6F2\],
+.dark .bg-\[\#FAF6F2\]\/95,
+.dark .bg-\[\#FAF6F2\]\/90 {
+  background-color: #13100E !important;
+}
+
+.dark .bg-white,
+.dark .bg-white\/95,
+.dark .bg-white\/90,
+.dark .bg-white\/80,
+.dark .bg-white\/70 {
+  background-color: #1D1814 !important;
+}
+
+.dark .border-\[\#EAE3DB\],
+.dark .border-\[\#F0EAE3\],
+.dark .border-\[\#D8CFC5\] {
+  border-color: #382F26 !important;
+}
+
+/* Typography in Dark Mode */
+.dark .text-neutral-950,
+.dark .text-neutral-900,
+.dark .text-\[\#0D0A10\],
+.dark .text-\[\#111111\] {
+  color: #FAF6F2 !important;
+}
+
+.dark .text-neutral-800,
+.dark .text-neutral-700 {
+  color: #E2DAD0 !important;
+}
+
+.dark .text-neutral-600,
+.dark .text-neutral-500 {
+  color: #A3978B !important;
+}
+
+.dark .text-neutral-400 {
+  color: #8A7E72 !important;
+}
+
+/* ====================================================================
+   BUTTONS IN DARK MODE - ULTRA VISIBLE & DISTINCT
+   ==================================================================== */
+
+/* 1. Black/Dark buttons (e.g. bg-neutral-900, bg-neutral-950, bg-black, bg-[#0A0A0A])
+   In dark mode, these MUST NOT be flat invisible black!
+   We make them elevated warm charcoal with a distinct illuminated border */
+.dark button.bg-neutral-900,
+.dark button.bg-neutral-950,
+.dark button.bg-black,
+.dark button.bg-\[\#0A0A0A\],
+.dark a.bg-neutral-900,
+.dark a.bg-neutral-950,
+.dark a.bg-black {
+  background-color: #2D251F !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid #5C4D40 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+}
+
+.dark button.bg-neutral-900:hover,
+.dark button.bg-neutral-950:hover,
+.dark button.bg-black:hover,
+.dark a.bg-neutral-900:hover,
+.dark a.bg-neutral-950:hover {
+  background-color: #3A3028 !important;
+  border-color: #7A6756 !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* 2. White/Secondary buttons in Dark Mode
+   Elevated surface with clear border and readable light text */
+.dark button.bg-white,
+.dark a.bg-white {
+  background-color: #241D18 !important;
+  color: #FAF6F2 !important;
+  border: 1.5px solid #483C30 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.dark button.bg-white:hover,
+.dark a.bg-white:hover {
+  background-color: #2E251F !important;
+  border-color: #615142 !important;
+  color: #FFFFFF !important;
+}
+
+/* 3. Primary Red Buttons (#FF3358)
+   Extra radiant with subtle white bevel in dark mode */
+.dark .bg-\[\#FF3358\],
+.dark .btn-25d {
+  background-color: #FF3358 !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 18px rgba(255, 51, 88, 0.45) !important;
+}
+
+.dark .bg-\[\#FF3358\]:hover,
+.dark .btn-25d:hover {
+  background-color: #FF1F48 !important;
+  box-shadow: 0 6px 22px rgba(255, 51, 88, 0.55) !important;
+}
+
+/* 4. Emerald/Approve/Confirmed Buttons */
+.dark .bg-emerald-50,
+.dark .bg-emerald-100 {
+  background-color: #123824 !important;
+  color: #4ADE80 !important;
+  border: 1.5px solid #1E734A !important;
+}
+
+.dark .bg-emerald-50:hover,
+.dark .bg-emerald-100:hover {
+  background-color: #184A30 !important;
+  color: #86EFAC !important;
+}
+
+.dark .bg-emerald-600,
+.dark .bg-emerald-500 {
+  background-color: #059669 !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid #34D399 !important;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35) !important;
+}
+
+/* 5. Rose/Reject/Danger Buttons */
+.dark .bg-rose-50,
+.dark .bg-rose-100,
+.dark .bg-red-50,
+.dark .bg-red-100 {
+  background-color: #3B161E !important;
+  color: #FF708C !important;
+  border: 1.5px solid #8F2B40 !important;
+}
+
+.dark .bg-rose-50:hover,
+.dark .bg-rose-100:hover,
+.dark .bg-red-50:hover,
+.dark .bg-red-100:hover {
+  background-color: #4D1D28 !important;
+  color: #FFA3B5 !important;
+}
+
+/* 6. Filter Pills in Dark Mode */
+.dark button.bg-\[\#FAF6F2\] {
+  background-color: #241D18 !important;
+  color: #D4CCC2 !important;
+  border: 1.5px solid #3D3328 !important;
+}
+
+.dark button.bg-\[\#FAF6F2\]:hover {
+  background-color: #2F2620 !important;
+  color: #FFFFFF !important;
+  border-color: #594A3B !important;
+}
+
+/* 7. Input fields and dropdowns in Dark Mode */
+.dark input[type="text"],
+.dark input[type="password"],
+.dark input[type="email"],
+.dark select,
+.dark textarea {
+  background-color: #1B1612 !important;
+  color: #FAF6F2 !important;
+  border: 1.5px solid #42362C !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #8A7E72 !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+  border-color: #FF3358 !important;
+  box-shadow: 0 0 0 3px rgba(255, 51, 88, 0.3) !important;
+}
+
+/* 8. Neutral subtle backgrounds in Dark Mode */
+.dark .bg-neutral-100 {
+  background-color: #27211B !important;
+}
+.dark .bg-neutral-50 {
+  background-color: #201A15 !important;
+}
+.dark .bg-neutral-200 {
+  background-color: #382F26 !important;
+}
+
+/* 9. Amber active check badges in Dark Mode */
+.dark .bg-amber-100 {
+  background-color: #3D2C10 !important;
+  color: #FBBF24 !important;
+  border-color: #B45309 !important;
 }
 
 /* Gradient text utilities */

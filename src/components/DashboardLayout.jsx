@@ -8,6 +8,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { me, isPaid, plan, rejectedNotice, subscribeStore } from '../../lib/store.js';
+import { getTheme, toggleTheme } from '../../lib/theme.js';
 
 export default function DashboardLayout({ activeMenu = 'find', onNavigate, children }) {
   const [currentUser, setCurrentUser] = useState(() => me() || {
@@ -23,6 +24,15 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
+  const [currentTheme, setCurrentTheme] = useState(() => getTheme());
+
+  useEffect(() => {
+    const onThemeChange = (e) => {
+      if (e.detail?.theme) setCurrentTheme(e.detail.theme);
+    };
+    window.addEventListener('theme-change', onThemeChange);
+    return () => window.removeEventListener('theme-change', onThemeChange);
+  }, []);
 
   // Check auth and plan status seamlessly
   useEffect(() => {
@@ -328,6 +338,18 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
 
           {/* Right Header: Profile Badge or Guest Login */}
           <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => {
+                const next = toggleTheme();
+                setCurrentTheme(next);
+              }}
+              className="p-2 sm:px-3 sm:py-1.5 rounded-xl border border-[#EAE3DB] bg-white text-xs font-bold text-neutral-800 hover:border-black transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+              title="Toggle Theme"
+            >
+              <span className="text-sm">{currentTheme === 'dark' ? '☀️' : '🌙'}</span>
+              <span className="hidden sm:inline">{currentTheme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
             {currentUser?.isGuest ? (
               <div className="flex items-center gap-2">
                 <a
