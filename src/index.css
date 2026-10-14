@@ -39,29 +39,26 @@
 }
 
 html.dark,
-[data-theme="dark"],
-@media (prefers-color-scheme: dark) {
-  :root:not(.light) {
-    --bg-page: #13100E;
-    --bg-card: #1D1814;
-    --bg-card-subtle: #26201B;
-    --border-light: #382F26;
-    --border-focus: #FF385C;
-    
-    --text-dark: #FAF6F2;
-    --text-body: #D4CCC2;
-    --text-muted: #9E9387;
-    
-    --dash-bg: #13100E;
-    --dash-card: #1D1814;
-    --dash-card-hover: #26201B;
-    --dash-border: #382F26;
-    --dash-border-subtle: #45392F;
-    --dash-ink: #FAF6F2;
-    --dash-muted: #9E9387;
-    --dash-sidebar: #171310;
-    --dash-topbar: rgba(19, 16, 14, 0.94);
-  }
+[data-theme="dark"] {
+  --bg-page: #13100E;
+  --bg-card: #1D1814;
+  --bg-card-subtle: #26201B;
+  --border-light: #382F26;
+  --border-focus: #FF385C;
+  
+  --text-dark: #FAF6F2;
+  --text-body: #D4CCC2;
+  --text-muted: #9E9387;
+  
+  --dash-bg: #13100E;
+  --dash-card: #1D1814;
+  --dash-card-hover: #26201B;
+  --dash-border: #382F26;
+  --dash-border-subtle: #45392F;
+  --dash-ink: #FAF6F2;
+  --dash-muted: #9E9387;
+  --dash-sidebar: #171310;
+  --dash-topbar: rgba(19, 16, 14, 0.94);
 }
 
 html {

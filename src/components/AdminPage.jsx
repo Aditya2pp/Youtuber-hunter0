@@ -105,6 +105,8 @@ export default function AdminPage({ onNavigate }) {
   const [paymentsList, setPaymentsList] = useState([]);
   const [paymentFilter, setPaymentFilter] = useState('to_check'); // 'to_check' | 'confirmed' | 'rejected' | 'all'
   const [viewScreenshotModal, setViewScreenshotModal] = useState(null); // url string
+  const [copiedUrlId, setCopiedUrlId] = useState(null);
+  const [copiedEmailId, setCopiedEmailId] = useState(null);
 
   // Creators Tab
   const [creatorsList, setCreatorsList] = useState([]);
@@ -901,91 +903,120 @@ export default function AdminPage({ onNavigate }) {
                           )}
                         </div>
 
-                        {/* Amount & Plan Details */}
-                        <div className="flex items-center gap-3 bg-[#FAF6F2] rounded-xl p-3 border border-[#EAE3DB] mb-3">
-                          <div className="text-lg font-black text-neutral-900">
-                            ₹{p.amount}
-                          </div>
-                          <div className="text-xs font-bold text-neutral-600 border-l border-[#EAE3DB] pl-3">
-                            Plan:{' '}
-                            <span className="text-[#FF3358]">
-                              {p.plan === '1y' ? '1 Year Pro (365 Days)' : '30 Days Pass'}
+                        {/* User Data Details */}
+                        <div className="bg-[#FAF6F2] rounded-xl p-3.5 border border-[#EAE3DB] mb-3 space-y-2.5 text-xs">
+                          {/* Amount & Plan */}
+                          <div className="flex items-center justify-between pb-2 border-b border-[#EAE3DB]">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xl font-black text-neutral-900">₹{p.amount}</span>
+                              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FF3358]/10 text-[#FF3358] border border-[#FF3358]/20">
+                                {p.plan === '1y' ? '1 Year Pro (365 Days)' : '30 Days Pass'}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-neutral-500 font-semibold">
+                              {p.created_at ? new Date(p.created_at).toLocaleString('en-IN', {
+                                day: 'numeric',
+                                month: 'short',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              }) : 'Recent'}
                             </span>
+                          </div>
+
+                          {/* User ID & Email info */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-[11px]">
+                            <div>
+                              <span className="text-neutral-500 font-bold block mb-0.5">User Email:</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="font-bold text-neutral-900 truncate" title={p.email}>
+                                  {p.email || 'No email provided'}
+                                </span>
+                                {p.email && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard?.writeText(p.email);
+                                      setCopiedEmailId(p.id);
+                                      setTimeout(() => setCopiedEmailId(null), 2000);
+                                    }}
+                                    className="text-[10px] text-neutral-600 hover:text-neutral-950 font-bold px-1.5 py-0.5 rounded border border-[#EAE3DB] bg-white cursor-pointer shrink-0"
+                                    title="Copy Email"
+                                  >
+                                    {copiedEmailId === p.id ? '✓ Copied' : 'Copy'}
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+
+                            <div>
+                              <span className="text-neutral-500 font-bold block mb-0.5">User ID:</span>
+                              <span className="font-mono text-[10px] text-neutral-700 truncate block bg-white px-2 py-1 rounded border border-[#EAE3DB]" title={p.user_id}>
+                                {p.user_id}
+                              </span>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Screenshot thumbnail section */}
-                        <div className="mb-4">
-                          <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
-                              Payment Screenshot:
+                        {/* Screenshot URL Section (User data + URL only, no image) */}
+                        <div className="mb-4 bg-white rounded-xl p-3 border border-[#EAE3DB] shadow-xs">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-[11px] font-extrabold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5">
+                              <span>🔗</span>
+                              <span>Screenshot URL:</span>
                             </span>
-                            {screenshotSrc && (
-                              <button
-                                type="button"
-                                onClick={() => setViewScreenshotModal(screenshotSrc)}
-                                className="text-[11px] font-bold text-[#FF3358] hover:underline cursor-pointer"
-                              >
-                                View Large ↗
-                              </button>
+                            {screenshotSrc ? (
+                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">
+                                Uploaded on Supabase
+                              </span>
+                            ) : (
+                              <span className="text-[10px] font-bold text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-full">
+                                No URL
+                              </span>
                             )}
                           </div>
 
                           {screenshotSrc ? (
-                            <div className="space-y-1.5">
-                              <div
-                                onClick={() => setViewScreenshotModal(screenshotSrc)}
-                                className="relative group rounded-xl overflow-hidden border border-[#EAE3DB] bg-neutral-100 h-36 max-w-xs cursor-pointer shadow-xs"
-                              >
-                                <img
-                                  src={screenshotSrc}
-                                  alt="Payment Slip"
-                                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform"
-                                  onError={(e) => {
-                                    if (p.screenshot_path && !e.target.dataset.triedPublic) {
-                                      e.target.dataset.triedPublic = 'true';
-                                      const pub = getStoragePublicUrl(p.screenshot_path);
-                                      if (pub && pub !== screenshotSrc) {
-                                        e.target.src = pub;
-                                        return;
-                                      }
-                                    }
-                                  }}
+                            <div className="space-y-2">
+                              {/* Readonly URL Box */}
+                              <div className="relative flex items-center">
+                                <input
+                                  type="text"
+                                  readOnly
+                                  value={screenshotSrc}
+                                  className="w-full text-[11px] font-mono py-2 pl-3 pr-24 bg-[#FAF6F2] border border-[#EAE3DB] rounded-lg text-neutral-800 truncate select-all focus:outline-none focus:border-[#FF3358]"
+                                  title={screenshotSrc}
                                 />
                                 <button
                                   type="button"
-                                  onClick={(ev) => {
-                                    ev.stopPropagation();
-                                    setViewScreenshotModal(screenshotSrc);
+                                  onClick={() => {
+                                    navigator.clipboard?.writeText(screenshotSrc);
+                                    setCopiedUrlId(p.id);
+                                    setTimeout(() => setCopiedUrlId(null), 2000);
                                   }}
-                                  className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1 cursor-pointer"
+                                  className="absolute right-1 px-2.5 py-1 text-[10px] font-bold rounded-md bg-neutral-900 text-white hover:bg-neutral-800 transition-colors cursor-pointer shadow-xs border border-neutral-700"
                                 >
-                                  🔍 Tap to Enlarge
+                                  {copiedUrlId === p.id ? 'Copied! ✓' : '📋 Copy URL'}
                                 </button>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => setViewScreenshotModal(screenshotSrc)}
-                                  className="text-[11px] font-bold text-neutral-700 hover:text-neutral-950 flex items-center gap-1 cursor-pointer"
+
+                              {/* Action Link to open screenshot */}
+                              <div className="flex items-center justify-between pt-1">
+                                <a
+                                  href={screenshotSrc}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#FF3358] text-white hover:bg-[#FF1F48] rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
                                 >
-                                  <span>🔍 Full Slip</span>
-                                </button>
-                                {screenshotSrc.startsWith('http') && (
-                                  <a
-                                    href={screenshotSrc}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[11px] font-bold text-[#FF3358] hover:underline"
-                                  >
-                                    Direct Link ↗
-                                  </a>
-                                )}
+                                  <span>Open Screenshot in New Tab ↗</span>
+                                </a>
+                                <span className="text-[10px] text-neutral-400 font-medium">
+                                  Click to view full receipt
+                                </span>
                               </div>
                             </div>
                           ) : (
-                            <div className="text-xs text-neutral-400 italic py-2">
-                              No screenshot file available
+                            <div className="text-xs text-neutral-400 italic py-1">
+                              No screenshot URL available for this record
                             </div>
                           )}
                         </div>
