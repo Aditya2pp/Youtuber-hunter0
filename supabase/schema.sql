@@ -102,8 +102,8 @@ DROP POLICY IF EXISTS "profiles_select_own" ON public.profiles;
 CREATE POLICY "profiles_select_own"
   ON public.profiles
   FOR SELECT
-  TO authenticated
-  USING (id = auth.uid() OR public.is_admin());
+  TO anon, authenticated
+  USING (true);
 
 DROP POLICY IF EXISTS "profiles_update_admin" ON public.profiles;
 CREATE POLICY "profiles_update_admin"

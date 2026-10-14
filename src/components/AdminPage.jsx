@@ -827,19 +827,70 @@ export default function AdminPage({ onNavigate }) {
                 ))}
               </div>
 
-              <div className="text-xs text-neutral-500 font-medium">
-                {paymentsList.length} payment records
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setLoading(true);
+                    try {
+                      const list = await adminGetPayments(paymentFilter);
+                      setPaymentsList(list);
+                      refreshStats();
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  className="px-2.5 py-1 rounded-lg text-xs font-bold bg-[#FAF6F2] hover:bg-neutral-100 border border-[#EAE3DB] text-neutral-700 cursor-pointer flex items-center gap-1 transition-colors"
+                  title="Refresh Payments"
+                >
+                  <span>🔄</span>
+                  <span className="hidden sm:inline">Refresh</span>
+                </button>
+                <div className="text-xs text-neutral-500 font-medium">
+                  {paymentsList.length} payment records
+                </div>
               </div>
             </div>
 
             {/* Payments List Table / Cards */}
             {paymentsList.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-[#EAE3DB] p-12 text-center">
+              <div className="bg-white rounded-3xl border border-[#EAE3DB] p-10 sm:p-12 text-center">
                 <div className="text-4xl mb-3">☕</div>
-                <h3 className="text-lg font-bold text-neutral-900">No payments found in this filter</h3>
-                <p className="text-sm text-neutral-500 mt-1">
-                  When users submit payment screenshots, they will appear here instantly.
+                <h3 className="text-lg font-bold text-neutral-900">
+                  {paymentFilter === 'to_check' ? 'No pending payments to verify' : 'No payments found in this filter'}
+                </h3>
+                <p className="text-xs sm:text-sm text-neutral-500 mt-1 max-w-md mx-auto">
+                  {paymentFilter === 'to_check'
+                    ? 'All user payments have either been verified or none are pending verification.'
+                    : 'When users submit payments, their user data and direct Supabase screenshot URLs appear here instantly.'}
                 </p>
+                <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
+                  {paymentFilter !== 'all' && (
+                    <button
+                      type="button"
+                      onClick={() => setPaymentFilter('all')}
+                      className="px-4 py-2 bg-neutral-950 text-white rounded-xl text-xs font-bold hover:bg-neutral-800 transition-colors shadow-xs cursor-pointer"
+                    >
+                      Show All Payments
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      setLoading(true);
+                      try {
+                        const list = await adminGetPayments(paymentFilter);
+                        setPaymentsList(list);
+                        refreshStats();
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    className="px-4 py-2 bg-[#FAF6F2] border border-[#EAE3DB] text-neutral-800 rounded-xl text-xs font-bold hover:bg-neutral-100 transition-colors cursor-pointer"
+                  >
+                    🔄 Check Again
+                  </button>
+                </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1000,17 +1051,27 @@ export default function AdminPage({ onNavigate }) {
                               </div>
 
                               {/* Action Link to open screenshot */}
-                              <div className="flex items-center justify-between pt-1">
-                                <a
-                                  href={screenshotSrc}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#FF3358] text-white hover:bg-[#FF1F48] rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
-                                >
-                                  <span>Open Screenshot in New Tab ↗</span>
-                                </a>
+                              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                                <div className="flex items-center gap-2">
+                                  <a
+                                    href={screenshotSrc}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#FF3358] text-white hover:bg-[#FF1F48] rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
+                                  >
+                                    <span>Open in New Tab ↗</span>
+                                  </a>
+                                  <button
+                                    type="button"
+                                    onClick={() => setViewScreenshotModal(screenshotSrc)}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white border border-[#EAE3DB] text-neutral-800 hover:bg-neutral-50 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                                    title="Open modal preview"
+                                  >
+                                    <span>👁 Preview</span>
+                                  </button>
+                                </div>
                                 <span className="text-[10px] text-neutral-400 font-medium">
-                                  Click to view full receipt
+                                  Direct Supabase Storage URL
                                 </span>
                               </div>
                             </div>
