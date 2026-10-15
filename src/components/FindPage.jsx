@@ -126,8 +126,11 @@ export default function FindPage({ onNavigate }) {
           </div>
           <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-0.5">
             {userIsPaid ? (
-              <span className="text-emerald-700 font-bold">
-                ✓ Pro Hunter: All direct creator inquiry emails & Instagram handles unlocked.
+              <span className="text-emerald-700 font-bold inline-flex items-center gap-1">
+                <svg className="w-3.5 h-3.5 text-emerald-600 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>Pro Hunter: All direct creator inquiry emails & Instagram handles unlocked.</span>
               </span>
             ) : (
               <span>

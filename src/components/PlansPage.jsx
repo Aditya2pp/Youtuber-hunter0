@@ -221,14 +221,35 @@ export default function PlansPage({ onNavigate }) {
 
             <div className="self-start sm:self-center">
               <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${hasActiveAnnualPlan ? 'bg-neutral-900 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
-                {hasActiveAnnualPlan ? '👑 1 Year Pro Active' : '✓ Full Access Active'}
+                {hasActiveAnnualPlan ? (
+                  <>
+                    <svg className="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                    </svg>
+                    <span>1 Year Pro Active</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>Full Access Active</span>
+                  </>
+                )}
               </span>
             </div>
           </div>
 
           {hasActiveAnnualPlan && (
-            <div className="mt-3.5 pt-3.5 border-t border-[#F0EAE3] text-xs text-neutral-600 font-medium">
-              💡 <strong className="text-neutral-950">1 Year Pro plan active hai:</strong> Aapke paas already maximum plan hai. Iske expire hone se pehle aapko koi aur plan buy karne ki zaroorat nahi hai.
+            <div className="mt-3.5 pt-3.5 border-t border-[#F0EAE3] text-xs text-neutral-600 font-medium flex items-center gap-2">
+              <svg className="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4" />
+                <path d="M12 8h.01" />
+              </svg>
+              <span>
+                <strong className="text-neutral-950">1 Year Pro Active:</strong> You have unlimited access to all creator directories and verified contacts until expiration.
+              </span>
             </div>
           )}
         </div>
@@ -243,8 +264,8 @@ export default function PlansPage({ onNavigate }) {
         </h2>
         <p className="text-xs sm:text-sm text-neutral-600 font-medium mt-1">
           {hasActiveAnnualPlan 
-            ? 'Aapka 1 Year Pro plan active hai. Aapke paas sabhi creators ke verified emails unlocked hain.'
-            : 'Select a plan below to reveal the instant UPI QR code & payment options.'}
+            ? 'Your 1 Year Pro plan is currently active with full unlocked creator directory access.'
+            : 'Select a plan below to reveal instant UPI payment options and unlock all creator emails.'}
         </p>
       </div>
 
@@ -397,8 +418,11 @@ export default function PlansPage({ onNavigate }) {
               </h3>
             </div>
             <div className="flex items-center gap-2 self-start sm:self-center">
-              <span className="inline-block px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">
-                ⚡ Instant Activation
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800">
+                <svg className="w-3.5 h-3.5 text-emerald-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6">
+                  <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                </svg>
+                <span>Instant Activation</span>
               </span>
               <button
                 type="button"
@@ -406,7 +430,7 @@ export default function PlansPage({ onNavigate }) {
                 className="p-1 px-2.5 rounded-lg text-xs font-bold text-neutral-400 hover:text-neutral-900 hover:bg-neutral-100 transition-colors"
                 title="Close payment section"
               >
-                ✕ Cancel
+                Close
               </button>
             </div>
           </div>
@@ -466,7 +490,7 @@ export default function PlansPage({ onNavigate }) {
                     onClick={handleCopyUpi}
                     className="px-3 py-1.5 rounded-xl text-xs font-black bg-white border border-[#EAE3DB] text-neutral-900 hover:border-black transition-colors shrink-0 shadow-xs cursor-pointer active:scale-95"
                   >
-                    {copiedUpi ? 'Copied ✓' : 'Copy UPI'}
+                    {copiedUpi ? 'Copied!' : 'Copy UPI'}
                   </button>
                 </div>
               </div>
@@ -557,7 +581,12 @@ export default function PlansPage({ onNavigate }) {
                   {isProcessing ? (
                     <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
-                    <span>Payment Complete ✓ (Activate Plan)</span>
+                    <>
+                      <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span>Payment Complete (Activate Plan)</span>
+                    </>
                   )}
                 </button>
               </div>
@@ -568,14 +597,23 @@ export default function PlansPage({ onNavigate }) {
         </div>
       )}
 
-      {/* FOOTER: BILLING INQUIRY ONLY (Clean, without demo button) */}
-      <div className="pt-6 border-t border-[#EAE3DB] flex items-center justify-between text-xs text-neutral-500 font-semibold">
-        <div>
-          <span>Billing inquiries: </span>
-          <a href="mailto:support@youtuberfinder.com" className="text-neutral-900 hover:underline font-bold">
-            support@youtuberfinder.com
+      {/* FOOTER: TELEGRAM SUPPORT ONLY */}
+      <div className="pt-6 border-t border-[#EAE3DB] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-neutral-600 font-semibold">
+        <div className="flex items-center gap-2">
+          <span>Official Support:</span>
+          <a
+            href="https://t.me/Pixel_Craft0"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 font-extrabold text-neutral-950 hover:text-[#229ED9] transition-colors"
+          >
+            <svg className="w-4 h-4 text-[#229ED9]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 0 0-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z" />
+            </svg>
+            <span>t.me/Pixel_Craft0 (@Pixel_Craft0)</span>
           </a>
         </div>
+        <span className="text-neutral-400 text-[11px]">Instant 24/7 assistance on Telegram</span>
       </div>
     </div>
   );

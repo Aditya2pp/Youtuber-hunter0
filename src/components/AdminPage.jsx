@@ -149,7 +149,7 @@ export default function AdminPage({ onNavigate }) {
     const p = loginPassword.trim();
 
     if (!u || !p) {
-      setAuthError('Kripya Username aur Password dono daalein.');
+      setAuthError('Please enter both Admin Username and Password.');
       return;
     }
 
@@ -158,14 +158,14 @@ export default function AdminPage({ onNavigate }) {
         setAuthLoading(true);
         await adminLoginMaster(u, p);
         setIsMasterAuth(true);
-        showNotification('👑 Admin login successful! Welcome Raja.');
+        showNotification('Admin credentials verified. Welcome!');
       } catch (err) {
         setAuthError(err.message || 'Login error occurred.');
       } finally {
         setAuthLoading(false);
       }
     } else {
-      setAuthError('Galt Username ya Password! Access denied.');
+      setAuthError('Incorrect Username or Password! Access denied.');
     }
   };
 
@@ -535,21 +535,27 @@ export default function AdminPage({ onNavigate }) {
       <div className="min-h-screen bg-[#FAF6F2] flex items-center justify-center p-4">
         <div className="bg-white border border-[#EAE3DB] rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-xl">
           <div className="text-center mb-6">
-            <div className="w-16 h-16 rounded-2xl bg-[#FF3358]/10 text-[#FF3358] border border-[#FF3358]/20 flex items-center justify-center mx-auto mb-4 text-3xl font-black shadow-xs">
-              👑
+            <div className="w-16 h-16 rounded-2xl bg-[#FF3358]/10 text-[#FF3358] border border-[#FF3358]/20 flex items-center justify-center mx-auto mb-4 shadow-xs">
+              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
             </div>
             <h2 className="text-2xl font-black text-neutral-900 tracking-tight">
               Master Admin Access
             </h2>
             <p className="text-neutral-500 text-xs sm:text-sm mt-1.5 font-medium">
-              Kisi bhi device se control panel kholne ke liye Master Username aur Password enter karein.
+              Enter your master credentials to securely manage payments, users, and directory listings.
             </p>
           </div>
 
           <form onSubmit={handleMasterLogin} className="space-y-4">
             {authError && (
               <div className="p-3 rounded-xl bg-rose-50 border border-rose-300 text-rose-800 text-xs font-bold flex items-center gap-2">
-                <span>⛔</span>
+                <svg className="w-4 h-4 text-rose-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
                 <span>{authError}</span>
               </div>
             )}
@@ -808,9 +814,9 @@ export default function AdminPage({ onNavigate }) {
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-bold text-neutral-500 uppercase tracking-wider mr-1">Filter:</span>
                 {[
-                  { id: 'to_check', label: '⚡ To Verify / Active', count: stats.paymentsToCheck },
-                  { id: 'confirmed', label: '✅ Confirmed' },
-                  { id: 'rejected', label: '❌ Rejected' },
+                  { id: 'to_check', label: 'To Verify / Active', count: stats.paymentsToCheck },
+                  { id: 'confirmed', label: 'Approved' },
+                  { id: 'rejected', label: 'Rejected' },
                   { id: 'all', label: 'All Payments' },
                 ].map((f) => (
                   <button
@@ -1039,7 +1045,10 @@ export default function AdminPage({ onNavigate }) {
                         <div className="mb-4 bg-white rounded-xl p-3 border border-[#EAE3DB] shadow-xs">
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-[11px] font-extrabold text-neutral-800 uppercase tracking-wider flex items-center gap-1.5">
-                              <span>🔗</span>
+                              <svg className="w-3.5 h-3.5 text-neutral-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                              </svg>
                               <span>Screenshot URL:</span>
                             </span>
                             {screenshotSrc ? (
@@ -1077,7 +1086,7 @@ export default function AdminPage({ onNavigate }) {
                                   }}
                                   className="absolute right-1 px-2.5 py-1 text-[10px] font-bold rounded-md bg-neutral-900 text-white hover:bg-neutral-800 transition-colors cursor-pointer shadow-xs border border-neutral-700"
                                 >
-                                  {copiedUrlId === p.id ? 'Copied! ✓' : '📋 Copy URL'}
+                                  {copiedUrlId === p.id ? 'Copied!' : 'Copy URL'}
                                 </button>
                               </div>
 
@@ -1094,10 +1103,14 @@ export default function AdminPage({ onNavigate }) {
                                   <button
                                     type="button"
                                     onClick={() => setViewScreenshotModal(screenshotSrc)}
-                                    className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-white border border-[#EAE3DB] text-neutral-800 hover:bg-neutral-50 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs"
+                                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-white border border-[#EAE3DB] text-neutral-800 hover:bg-neutral-50 rounded-lg text-xs font-bold transition-all cursor-pointer shadow-2xs"
                                     title="Open modal preview"
                                   >
-                                    <span>👁 Preview</span>
+                                    <svg className="w-3.5 h-3.5 text-neutral-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
+                                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                      <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                    <span>Preview</span>
                                   </button>
                                 </div>
                                 <span className="text-[10px] text-neutral-400 font-medium">
@@ -1117,8 +1130,11 @@ export default function AdminPage({ onNavigate }) {
                       <div className="pt-3 border-t border-[#EAE3DB] flex flex-wrap items-center gap-2">
                         {isApproved ? (
                           <div className="w-full flex items-center justify-between gap-2">
-                            <span className="text-xs text-emerald-600 font-bold flex items-center gap-1">
-                              ✅ Plan confirmed & active.
+                            <span className="text-xs text-emerald-600 font-bold flex items-center gap-1.5">
+                              <svg className="w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                              <span>Plan confirmed & active.</span>
                             </span>
                             <div className="flex gap-2">
                               <button
@@ -1138,8 +1154,13 @@ export default function AdminPage({ onNavigate }) {
                           </div>
                         ) : isRejected ? (
                           <div className="w-full flex items-center justify-between gap-2">
-                            <span className="text-xs text-rose-600 font-bold flex items-center gap-1">
-                              ❌ Rejected (Plan Reset to Free).
+                            <span className="text-xs text-rose-600 font-bold flex items-center gap-1.5">
+                              <svg className="w-4 h-4 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="15" y1="9" x2="9" y2="15" />
+                                <line x1="9" y1="9" x2="15" y2="15" />
+                              </svg>
+                              <span>Rejected (Plan Reset to Free).</span>
                             </span>
                             <div className="flex gap-2">
                               <button
@@ -1179,7 +1200,7 @@ export default function AdminPage({ onNavigate }) {
                               className="py-2 px-3 bg-white hover:bg-neutral-50 text-neutral-800 border border-[#EAE3DB] rounded-xl text-xs font-bold transition-all cursor-pointer"
                               title="Directly edit days"
                             >
-                              ⚙️ Plan
+                              Set Plan
                             </button>
                           </>
                         )}

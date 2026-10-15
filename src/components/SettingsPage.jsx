@@ -152,10 +152,19 @@ export default function SettingsPage({ onNavigate }) {
 
           <div className="p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
             <h4 className="font-extrabold text-neutral-950 mb-1">
-              4. Business Inquiries & Removal Requests
+              4. Inquiries, Creator Removal & Official Support
             </h4>
             <p>
-              All email addresses indexed on this platform are official public business emails intended solely for professional business inquiries. If any creator wishes to update or immediately remove their public listing from our search directory, simply reach out to <strong>support@youtuberfinder.com</strong> and we will delete your record with zero questions asked.
+              All email addresses indexed on this platform are public business emails for professional correspondence. For assistance, questions, or removal requests, contact our official Telegram support directly at{' '}
+              <a
+                href="https://t.me/Pixel_Craft0"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-black text-neutral-950 hover:text-[#229ED9] underline inline-flex items-center gap-1"
+              >
+                <span>t.me/Pixel_Craft0 (@Pixel_Craft0)</span>
+              </a>
+              .
             </p>
           </div>
         </div>
