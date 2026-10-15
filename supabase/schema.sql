@@ -727,6 +727,8 @@ BEGIN
       'screenshot_hash', p.screenshot_hash,
       'status', p.status,
       'created_at', p.created_at,
+      'username', u.username,
+      'email', u.email,
       'profiles', json_build_object(
         'username', u.username,
         'email', u.email
