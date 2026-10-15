@@ -905,6 +905,33 @@ export default function AdminPage({ onNavigate }) {
                     ? rawScreenshot
                     : (rawScreenshot ? getStoragePublicUrl(rawScreenshot) : '');
 
+                  const isDataUrl = screenshotSrc.startsWith('data:');
+                  const displayUsername = p.username && p.username !== 'User' 
+                    ? p.username 
+                    : (p.email && p.email.includes('@') ? p.email.split('@')[0] : (p.username || 'User'));
+                  const displayEmail = p.email && p.email !== 'Email' ? p.email : '';
+
+                  const handleOpenReceiptSafe = (url) => {
+                    if (!url) return;
+                    if (url.startsWith('data:')) {
+                      try {
+                        const parts = url.split(',');
+                        const mime = parts[0].match(/:(.*?);/)[1];
+                        const bstr = atob(parts[1]);
+                        let n = bstr.length;
+                        const u8arr = new Uint8Array(n);
+                        while (n--) u8arr[n] = bstr.charCodeAt(n);
+                        const blob = new Blob([u8arr], { type: mime });
+                        const blobUrl = URL.createObjectURL(blob);
+                        window.open(blobUrl, '_blank');
+                      } catch {
+                        setViewScreenshotModal(url);
+                      }
+                    } else {
+                      window.open(url, '_blank');
+                    }
+                  };
+
                   return (
                     <div
                       key={p.id}
@@ -920,14 +947,14 @@ export default function AdminPage({ onNavigate }) {
                           <div>
                             <div className="flex items-center gap-2">
                               <span className="font-extrabold text-neutral-950 text-base">
-                                @{p.username || 'User'}
+                                @{displayUsername}
                               </span>
                               <span className="text-xs text-neutral-400 font-medium">
                                 • {timeAgo(p.created_at)}
                               </span>
                             </div>
                             <div className="text-xs text-neutral-500 truncate max-w-[220px]">
-                              {p.email}
+                              {displayEmail || 'No email provided'}
                             </div>
                           </div>
 
@@ -979,14 +1006,14 @@ export default function AdminPage({ onNavigate }) {
                             <div>
                               <span className="text-neutral-500 font-bold block mb-0.5">User Email:</span>
                               <div className="flex items-center gap-1.5">
-                                <span className="font-bold text-neutral-900 truncate" title={p.email}>
-                                  {p.email || 'No email provided'}
+                                <span className="font-bold text-neutral-900 truncate" title={displayEmail}>
+                                  {displayEmail || 'No email provided'}
                                 </span>
-                                {p.email && (
+                                {displayEmail && (
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      navigator.clipboard?.writeText(p.email);
+                                      navigator.clipboard?.writeText(displayEmail);
                                       setCopiedEmailId(p.id);
                                       setTimeout(() => setCopiedEmailId(null), 2000);
                                     }}
@@ -1016,8 +1043,12 @@ export default function AdminPage({ onNavigate }) {
                               <span>Screenshot URL:</span>
                             </span>
                             {screenshotSrc ? (
-                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">
-                                Uploaded on Supabase
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                isDataUrl 
+                                  ? 'text-amber-800 bg-amber-50 border-amber-300' 
+                                  : 'text-emerald-700 bg-emerald-50 border-emerald-300'
+                              }`}>
+                                {isDataUrl ? 'Local Receipt Attached' : 'Uploaded on Supabase'}
                               </span>
                             ) : (
                               <span className="text-[10px] font-bold text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded-full">
@@ -1033,7 +1064,7 @@ export default function AdminPage({ onNavigate }) {
                                 <input
                                   type="text"
                                   readOnly
-                                  value={screenshotSrc}
+                                  value={isDataUrl ? 'data:image/... [Embedded Local Receipt]' : screenshotSrc}
                                   className="w-full text-[11px] font-mono py-2 pl-3 pr-24 bg-[#FAF6F2] border border-[#EAE3DB] rounded-lg text-neutral-800 truncate select-all focus:outline-none focus:border-[#FF3358]"
                                   title={screenshotSrc}
                                 />
@@ -1053,14 +1084,13 @@ export default function AdminPage({ onNavigate }) {
                               {/* Action Link to open screenshot */}
                               <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
                                 <div className="flex items-center gap-2">
-                                  <a
-                                    href={screenshotSrc}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                                  <button
+                                    type="button"
+                                    onClick={() => handleOpenReceiptSafe(screenshotSrc)}
                                     className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#FF3358] text-white hover:bg-[#FF1F48] rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
                                   >
                                     <span>Open in New Tab ↗</span>
-                                  </a>
+                                  </button>
                                   <button
                                     type="button"
                                     onClick={() => setViewScreenshotModal(screenshotSrc)}
@@ -1071,7 +1101,7 @@ export default function AdminPage({ onNavigate }) {
                                   </button>
                                 </div>
                                 <span className="text-[10px] text-neutral-400 font-medium">
-                                  Direct Supabase Storage URL
+                                  {isDataUrl ? 'Direct Image Payload' : 'Direct Supabase Storage URL'}
                                 </span>
                               </div>
                             </div>
