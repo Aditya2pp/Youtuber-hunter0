@@ -39,7 +39,7 @@ export default function SettingsPage({ onNavigate }) {
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Profile Details Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#EAE3DB] shadow-sm">
+      <div data-reveal="up" className="p-6 sm:p-8 rounded-3xl bg-white border border-[#EAE3DB] shadow-sm card-hover-lift">
         <div className="flex items-center gap-4 pb-6 border-b border-[#F0EAE3] mb-6">
           <div className="w-14 h-14 rounded-2xl bg-neutral-900 text-white font-black text-2xl flex items-center justify-center shadow-sm">
             {currentUser.username.charAt(0).toUpperCase()}
@@ -105,7 +105,7 @@ export default function SettingsPage({ onNavigate }) {
       </div>
 
       {/* USER POLICY & PRIVACY POLICY SECTION (FOR READING) */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-white border border-[#EAE3DB] shadow-sm space-y-4">
+      <div data-reveal="up" className="p-6 sm:p-8 rounded-3xl bg-white border border-[#EAE3DB] shadow-sm space-y-4 card-hover-lift stagger-1">
         <div className="flex items-center gap-2.5 pb-4 border-b border-[#F0EAE3]">
           <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-800">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">

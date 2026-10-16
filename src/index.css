@@ -421,6 +421,149 @@ html.dark body,
   animation: fadeIn 0.25s ease-out forwards;
 }
 
+/* ====================================================================
+   BUTTON / SCENE TRANSITIONS (Runs every time any page/tab is changed)
+   ==================================================================== */
+@keyframes sceneFadeSlide {
+  0% {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scene-page-transition {
+  animation: sceneFadeSlide 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
+.scene-content-transition {
+  animation: sceneFadeSlide 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: opacity, transform;
+}
+
+/* ====================================================================
+   SMOOTH SCROLL ANIMATIONS & REVEAL SYSTEM
+   ==================================================================== */
+
+/* Sleek custom scrollbar */
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #D8CFC5;
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #BDB2A6;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background-color: #45392F;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #5C4D40;
+}
+
+/* Base scroll reveal (Fade Up with spring ease) */
+.reveal-on-scroll,
+[data-reveal],
+[data-reveal="up"] {
+  opacity: 0;
+  transform: translateY(26px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed,
+[data-reveal].is-revealed,
+[data-reveal="up"].is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scale & Pop reveal (for key cards & badges) */
+[data-reveal="scale"] {
+  opacity: 0;
+  transform: scale(0.94) translateY(20px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+[data-reveal="scale"].is-revealed {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Slide from Left */
+[data-reveal="left"] {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+[data-reveal="left"].is-revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Slide from Right */
+[data-reveal="right"] {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+[data-reveal="right"].is-revealed {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Stagger delay classes for graceful cascading */
+.stagger-1 { transition-delay: 0.06s !important; }
+.stagger-2 { transition-delay: 0.12s !important; }
+.stagger-3 { transition-delay: 0.18s !important; }
+.stagger-4 { transition-delay: 0.24s !important; }
+.stagger-5 { transition-delay: 0.30s !important; }
+.stagger-6 { transition-delay: 0.36s !important; }
+.stagger-7 { transition-delay: 0.42s !important; }
+.stagger-8 { transition-delay: 0.48s !important; }
+
+/* Subtle floating card interaction on hover */
+.card-hover-lift {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px -8px rgba(17, 12, 46, 0.08), 0 4px 8px -2px rgba(17, 12, 46, 0.03);
+}
+
+.dark .card-hover-lift:hover {
+  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.55);
+}
+
 /* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
@@ -429,4 +572,11 @@ html.dark body,
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+  .reveal-on-scroll,
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
 }
+

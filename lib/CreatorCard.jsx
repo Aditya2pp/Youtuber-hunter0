@@ -49,7 +49,10 @@ export default function CreatorCard({
   // LOCKED CARD (6th result onward for free users)
   if (isCardLocked) {
     return (
-      <div className="rounded-3xl border-2 border-dashed border-[#D8CFC5] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-white/70">
+      <div
+        data-reveal="up"
+        className={`rounded-3xl border-2 border-dashed border-[#D8CFC5] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-white/70 card-hover-lift stagger-${(index % 6) + 1}`}
+      >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-neutral-100 flex items-center justify-center text-neutral-400 font-extrabold text-lg">
@@ -112,7 +115,10 @@ export default function CreatorCard({
 
   // STANDARD REVEALED CARD (ONLY Name, Region, Subscribers, Niche, Channel URL, Instagram ID, Business Email)
   return (
-    <div className="rounded-3xl border border-[#EAE3DB] p-5 sm:p-6 bg-white shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+    <div
+      data-reveal="up"
+      className={`rounded-3xl border border-[#EAE3DB] p-5 sm:p-6 bg-white shadow-sm hover:shadow-md card-hover-lift transition-all duration-200 flex flex-col justify-between stagger-${(index % 6) + 1}`}
+    >
       <div>
         {/* Card Header: Avatar, Name, and Save It Button */}
         <div className="flex items-start justify-between gap-3 mb-4">

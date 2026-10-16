@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import { CREATORS, NICHES, COUNTRIES, RANGES } from '../../lib/data.js';
 import { isPaid, savedIds, toggleSave, subscribeStore, getLiveCreators } from '../../lib/store.js';
 import CreatorCard from '../../lib/CreatorCard.js';
+import { initScrollReveal } from '../../lib/scrollReveal.js';
 
 export default function FindPage({ onNavigate }) {
   const [selectedNiche, setSelectedNiche] = useState('all');
@@ -111,10 +112,18 @@ export default function FindPage({ onNavigate }) {
     return true;
   });
 
+  // Smooth scroll reveal trigger when filtered results change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initScrollReveal();
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [appliedFilters, filteredCreators.length]);
+
   return (
     <div className="space-y-6">
       {/* Top Banner Notice */}
-      <div className="p-5 rounded-3xl bg-white border border-[#EAE3DB] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+      <div data-reveal="up" className="p-5 rounded-3xl bg-white border border-[#EAE3DB] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm card-hover-lift">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-base sm:text-lg font-black text-neutral-950">
@@ -150,7 +159,7 @@ export default function FindPage({ onNavigate }) {
       </div>
 
       {/* FILTER BAR WITH 3 SELECTS + SEARCH INPUT */}
-      <div className="p-5 sm:p-6 rounded-3xl bg-white border border-[#EAE3DB] shadow-sm">
+      <div data-reveal="up" className="p-5 sm:p-6 rounded-3xl bg-white border border-[#EAE3DB] shadow-sm card-hover-lift stagger-1">
         <form onSubmit={handleSearch} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {/* 1. Niche Select */}

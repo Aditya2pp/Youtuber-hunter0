@@ -19,6 +19,7 @@ import PlansPage from './components/PlansPage.jsx';
 import SettingsPage from './components/SettingsPage.jsx';
 import AdminPage from './components/AdminPage.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import { initScrollReveal } from '../lib/scrollReveal.js';
 
 export default function App() {
   const getCleanPath = () => {
@@ -60,10 +61,13 @@ export default function App() {
   };
 
   const [currentPath, setCurrentPath] = useState(getCleanPath);
+  const [navKey, setNavKey] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const onLocationChange = () => {
       setCurrentPath(getCleanPath());
+      setNavKey((prev) => prev + 1);
     };
     window.addEventListener('popstate', onLocationChange);
     window.addEventListener('hashchange', onLocationChange);
@@ -73,6 +77,31 @@ export default function App() {
     };
   }, []);
 
+  // Smooth scroll progress tracker
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalScroll > 0) {
+        const progress = Math.min(100, Math.max(0, (window.scrollY / totalScroll) * 100));
+        setScrollProgress(progress);
+      } else {
+        setScrollProgress(0);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [currentPath, navKey]);
+
+  // Run scroll reveal observer whenever path changes or after DOM updates
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initScrollReveal();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [currentPath, navKey]);
+
   const navigate = (path: string) => {
     if (typeof window !== 'undefined') {
       let cleanTarget = path.startsWith('/') ? path : '/' + path;
@@ -80,6 +109,7 @@ export default function App() {
       // Always update hash - works universally on GitHub Pages, preview environments, custom domains
       window.location.hash = '#' + cleanTarget;
       setCurrentPath(cleanTarget);
+      setNavKey((prev) => prev + 1);
       window.scrollTo(0, 0);
     }
   };
@@ -138,5 +168,18 @@ export default function App() {
     return <LandingPage onNavigate={navigate} />;
   };
 
-  return <ErrorBoundary>{renderRoute()}</ErrorBoundary>;
+  return (
+    <ErrorBoundary>
+      {/* Silky smooth reading/scroll progress bar */}
+      <div className="fixed top-0 left-0 right-0 h-[2.5px] z-50 pointer-events-none bg-transparent">
+        <div
+          className="h-full bg-gradient-to-r from-[#6B30FF] via-[#FF3358] to-[#FF783E] transition-[width] duration-150 ease-out"
+          style={{ width: `${scrollProgress}%`, opacity: scrollProgress > 1 ? 1 : 0 }}
+        />
+      </div>
+      <div key={`${currentPath}-${navKey}`} className="scene-page-transition min-h-screen w-full">
+        {renderRoute()}
+      </div>
+    </ErrorBoundary>
+  );
 }

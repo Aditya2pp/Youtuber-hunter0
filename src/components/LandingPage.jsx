@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react';
 import { me } from '../../lib/store.js';
 import { PLANS } from '../../lib/data.js';
 import { getTheme, toggleTheme } from '../../lib/theme.js';
+import { initScrollReveal } from '../../lib/scrollReveal.js';
 
 export default function LandingPage({ onNavigate }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -26,7 +27,16 @@ export default function LandingPage({ onNavigate }) {
       if (e.detail?.theme) setThemeState(e.detail.theme);
     };
     window.addEventListener('theme-change', onThemeChange);
-    return () => window.removeEventListener('theme-change', onThemeChange);
+
+    // Initialize smooth scroll reveal
+    const timer = setTimeout(() => {
+      initScrollReveal();
+    }, 60);
+
+    return () => {
+      window.removeEventListener('theme-change', onThemeChange);
+      clearTimeout(timer);
+    };
   }, []);
 
   const handleNavClick = (path, e) => {
@@ -262,7 +272,7 @@ export default function LandingPage({ onNavigate }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* HERO LEFT COLUMN */}
-          <div className="lg:col-span-6 space-y-6">
+          <div data-reveal="left" className="lg:col-span-6 space-y-6">
             {/* Headline with Purple->Pink->Orange gradient + Red sketch sunburst & underline */}
             <div className="relative">
               <h1 className="text-5xl sm:text-6xl lg:text-[76px] font-extrabold tracking-[-0.04em] leading-[1.04]">
@@ -378,7 +388,7 @@ export default function LandingPage({ onNavigate }) {
           </div>
 
           {/* HERO RIGHT COLUMN (INTERACTIVE SAAS CLIENT-HUNTING WORKFLOW CARDS) */}
-          <div className="lg:col-span-6 relative flex justify-center py-4 select-none">
+          <div data-reveal="right" className="lg:col-span-6 relative flex justify-center py-4 select-none">
             
             {/* The Outer Canvas Container */}
             <div className="relative w-full max-w-[560px] min-h-[510px]">
@@ -727,7 +737,7 @@ export default function LandingPage({ onNavigate }) {
       {/* SECTION 1: HOW IT WORKS (#how) */}
       <section id="how" className="py-20 px-4 sm:px-8 border-t border-[#EAE3DB] bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-14">
+          <div data-reveal="up" className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-xs uppercase tracking-wider font-extrabold text-[#FF3358] mb-2 block">
               Streamlined 3-Step Outreach
             </span>
@@ -740,7 +750,7 @@ export default function LandingPage({ onNavigate }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-7 rounded-3xl bg-[#FAF6F2] border border-[#EAE3DB] hover:border-[#FF3358]/50 transition-colors">
+            <div data-reveal="up" className="p-7 rounded-3xl bg-[#FAF6F2] border border-[#EAE3DB] hover:border-[#FF3358]/50 transition-colors card-hover-lift stagger-1">
               <div className="w-12 h-12 rounded-2xl bg-[#0A0A0A] text-white font-extrabold text-base flex items-center justify-center mb-5 shadow-sm">
                 01
               </div>
@@ -750,7 +760,7 @@ export default function LandingPage({ onNavigate }) {
               </p>
             </div>
 
-            <div className="p-7 rounded-3xl bg-[#FAF6F2] border border-[#EAE3DB] hover:border-[#FF3358]/50 transition-colors">
+            <div data-reveal="up" className="p-7 rounded-3xl bg-[#FAF6F2] border border-[#EAE3DB] hover:border-[#FF3358]/50 transition-colors card-hover-lift stagger-2">
               <div className="w-12 h-12 rounded-2xl bg-[#0A0A0A] text-white font-extrabold text-base flex items-center justify-center mb-5 shadow-sm">
                 02
               </div>
@@ -760,7 +770,7 @@ export default function LandingPage({ onNavigate }) {
               </p>
             </div>
 
-            <div className="p-7 rounded-3xl bg-[#FAF6F2] border border-[#EAE3DB] hover:border-[#FF3358]/50 transition-colors">
+            <div data-reveal="up" className="p-7 rounded-3xl bg-[#FAF6F2] border border-[#EAE3DB] hover:border-[#FF3358]/50 transition-colors card-hover-lift stagger-3">
               <div className="w-12 h-12 rounded-2xl bg-[#0A0A0A] text-white font-extrabold text-base flex items-center justify-center mb-5 shadow-sm">
                 03
               </div>
@@ -776,7 +786,7 @@ export default function LandingPage({ onNavigate }) {
       {/* SECTION 2: USE CASES (#use) */}
       <section id="use" className="py-20 px-4 sm:px-8 border-t border-[#EAE3DB] bg-[#FAF6F2]">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-14">
+          <div data-reveal="up" className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-xs uppercase tracking-wider font-extrabold text-[#FF3358] mb-2 block">
               Tailored For Creators & Freelancers
             </span>
@@ -786,7 +796,7 @@ export default function LandingPage({ onNavigate }) {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-7 rounded-3xl bg-white border border-[#EAE3DB] shadow-xs">
+            <div data-reveal="up" className="p-7 rounded-3xl bg-white border border-[#EAE3DB] shadow-xs card-hover-lift stagger-1">
               <div className="w-10 h-10 rounded-xl bg-purple-100 text-[#6B30FF] flex items-center justify-center mb-4">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <polygon points="23 7 16 12 23 17 23 7" />
@@ -799,7 +809,7 @@ export default function LandingPage({ onNavigate }) {
               </p>
             </div>
 
-            <div className="p-7 rounded-3xl bg-white border border-[#EAE3DB] shadow-xs">
+            <div data-reveal="up" className="p-7 rounded-3xl bg-white border border-[#EAE3DB] shadow-xs card-hover-lift stagger-2">
               <div className="w-10 h-10 rounded-xl bg-rose-100 text-[#FF3358] flex items-center justify-center mb-4">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
@@ -813,7 +823,7 @@ export default function LandingPage({ onNavigate }) {
               </p>
             </div>
 
-            <div className="p-7 rounded-3xl bg-white border border-[#EAE3DB] shadow-xs">
+            <div data-reveal="up" className="p-7 rounded-3xl bg-white border border-[#EAE3DB] shadow-xs card-hover-lift stagger-3">
               <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-4">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
@@ -831,7 +841,7 @@ export default function LandingPage({ onNavigate }) {
       {/* SECTION 3: FEATURES (#features) */}
       <section id="features" className="py-20 px-4 sm:px-8 border-t border-[#EAE3DB] bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-14">
+          <div data-reveal="up" className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-xs uppercase tracking-wider font-extrabold text-[#FF3358] mb-2 block">
               Core Intelligence
             </span>
@@ -867,7 +877,11 @@ export default function LandingPage({ onNavigate }) {
                 desc: 'No expensive recurring lock-ins. Simple UPI passes starting at only ₹30 for 30 days.',
               },
             ].map((f, i) => (
-              <div key={i} className="p-6 rounded-3xl bg-[#FAF6F2] border border-[#EAE3DB]">
+              <div
+                key={i}
+                data-reveal="up"
+                className={`p-6 rounded-3xl bg-[#FAF6F2] border border-[#EAE3DB] card-hover-lift stagger-${(i % 3) + 1}`}
+              >
                 <div className="w-8 h-8 rounded-xl bg-white border border-[#EAE3DB] text-[#FF3358] font-bold text-sm flex items-center justify-center mb-3.5 shadow-xs">
                   ✦
                 </div>
@@ -882,7 +896,7 @@ export default function LandingPage({ onNavigate }) {
       {/* SECTION 4: PRICING (#pricing) */}
       <section id="pricing" className="py-20 px-4 sm:px-8 border-t border-[#EAE3DB] bg-[#FAF6F2]">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-14">
+          <div data-reveal="up" className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-xs uppercase tracking-wider font-extrabold text-[#FF3358] mb-2 block">
               Affordable UPI Pricing
             </span>
@@ -896,7 +910,7 @@ export default function LandingPage({ onNavigate }) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto items-stretch">
             {/* Free Plan */}
-            <div className="p-7 rounded-3xl bg-white border border-[#EAE3DB] flex flex-col justify-between">
+            <div data-reveal="scale" className="p-7 rounded-3xl bg-white border border-[#EAE3DB] flex flex-col justify-between card-hover-lift stagger-1">
               <div>
                 <h3 className="text-lg font-extrabold text-neutral-950">Free Tier</h3>
                 <p className="text-xs text-neutral-500 font-medium mt-1">Explore our creator list</p>
@@ -923,7 +937,7 @@ export default function LandingPage({ onNavigate }) {
             </div>
 
             {/* 30 Days Pass */}
-            <div className="p-7 rounded-3xl bg-white border-2 border-rose-300 flex flex-col justify-between relative shadow-md">
+            <div data-reveal="scale" className="p-7 rounded-3xl bg-white border-2 border-rose-300 flex flex-col justify-between relative shadow-md card-hover-lift stagger-2">
               <div className="absolute -top-3 right-6 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 shadow-xs">
                 Limited Offer
               </div>
@@ -954,7 +968,7 @@ export default function LandingPage({ onNavigate }) {
             </div>
 
             {/* 1 Year Pro */}
-            <div className="p-7 rounded-3xl bg-white border-2 border-neutral-900 flex flex-col justify-between relative shadow-xl">
+            <div data-reveal="scale" className="p-7 rounded-3xl bg-white border-2 border-neutral-900 flex flex-col justify-between relative shadow-xl card-hover-lift stagger-3">
               <div className="absolute -top-3 right-6 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-neutral-900 text-white shadow-xs">
                 Popular
               </div>
@@ -990,7 +1004,7 @@ export default function LandingPage({ onNavigate }) {
       {/* SECTION: USER & PRIVACY POLICY (#policy) */}
       <section id="policy" className="py-20 px-4 sm:px-8 border-t border-[#EAE3DB] bg-[#FAF6F2]">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center max-w-2xl mx-auto mb-12">
+          <div data-reveal="up" className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-xs uppercase tracking-wider font-extrabold text-[#FF3358] mb-2 block">
               Ethical & Public Data Statement
             </span>
@@ -1002,7 +1016,7 @@ export default function LandingPage({ onNavigate }) {
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl border border-[#EAE3DB] p-6 sm:p-10 shadow-sm space-y-8">
+          <div data-reveal="up" className="bg-white rounded-3xl border border-[#EAE3DB] p-6 sm:p-10 shadow-sm space-y-8">
             {/* 1. Zero Sale of Personal Data */}
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#FF3358] border border-rose-100 flex items-center justify-center shrink-0 font-extrabold">
@@ -1083,7 +1097,7 @@ export default function LandingPage({ onNavigate }) {
       {/* SECTION 5: FAQ ACCORDION (#faq) */}
       <section id="faq" className="py-20 px-4 sm:px-8 border-t border-[#EAE3DB] bg-white">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
+          <div data-reveal="up" className="text-center mb-12">
             <span className="text-xs uppercase tracking-wider font-extrabold text-[#FF3358] mb-2 block">
               Got Questions?
             </span>
@@ -1098,7 +1112,8 @@ export default function LandingPage({ onNavigate }) {
               return (
                 <div
                   key={index}
-                  className="rounded-2xl border border-[#EAE3DB] bg-[#FAF6F2] overflow-hidden"
+                  data-reveal="up"
+                  className={`rounded-2xl border border-[#EAE3DB] bg-[#FAF6F2] overflow-hidden card-hover-lift stagger-${(index % 4) + 1}`}
                 >
                   <button
                     type="button"
@@ -1111,7 +1126,7 @@ export default function LandingPage({ onNavigate }) {
                     </span>
                   </button>
                   {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed border-t border-[#EAE3DB]">
+                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed border-t border-[#EAE3DB] animate-fadeIn">
                       {faq.a}
                     </div>
                   )}
@@ -1123,7 +1138,7 @@ export default function LandingPage({ onNavigate }) {
       </section>
 
       {/* FOOTER */}
-      <footer className="py-10 px-4 sm:px-8 border-t border-[#EAE3DB] bg-[#FAF6F2] text-xs font-semibold text-neutral-600">
+      <footer data-reveal="up" className="py-10 px-4 sm:px-8 border-t border-[#EAE3DB] bg-[#FAF6F2] text-xs font-semibold text-neutral-600">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-[10px] bg-[#0A0A0A] text-white font-bold flex items-center justify-center">

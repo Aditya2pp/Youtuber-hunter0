@@ -496,7 +496,9 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
               </div>
             </div>
           )}
-          {children}
+          <div key={activeMenu} className="scene-content-transition w-full">
+            {children}
+          </div>
         </main>
       </div>
     </div>

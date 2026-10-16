@@ -12,6 +12,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { PLANS, UPI_ID, UPI_NAME } from '../../lib/data.js';
 import { me, isPaid, plan, payment, submitPayment, subscribeStore } from '../../lib/store.js';
+import { initScrollReveal } from '../../lib/scrollReveal.js';
 
 export default function PlansPage({ onNavigate }) {
   const [userIsPaid, setUserIsPaid] = useState(false);
@@ -40,6 +41,13 @@ export default function PlansPage({ onNavigate }) {
     const unsub = subscribeStore(update);
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initScrollReveal();
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [selectedPlan]);
 
   // Check if user currently has an active 1 Year Pro plan (highest tier)
   const hasActiveAnnualPlan = Boolean(
@@ -185,7 +193,7 @@ export default function PlansPage({ onNavigate }) {
           ACTIVE MEMBERSHIP BANNER (When Plan is Active)
          ======================================================== */}
       {userIsPaid && currentPlan && (
-        <div className={`p-4 sm:p-6 rounded-3xl bg-white border-2 shadow-sm ${hasActiveAnnualPlan ? 'border-neutral-900 ring-4 ring-neutral-900/5' : 'border-emerald-500'}`}>
+        <div data-reveal="up" className={`p-4 sm:p-6 rounded-3xl bg-white border-2 shadow-sm card-hover-lift ${hasActiveAnnualPlan ? 'border-neutral-900 ring-4 ring-neutral-900/5' : 'border-emerald-500'}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-start sm:items-center gap-3.5">
               <div className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl text-white flex items-center justify-center shrink-0 shadow-sm ${hasActiveAnnualPlan ? 'bg-neutral-950' : 'bg-emerald-500'}`}>
@@ -258,7 +266,7 @@ export default function PlansPage({ onNavigate }) {
       {/* ========================================================
           PLANS HEADER
          ======================================================== */}
-      <div>
+      <div data-reveal="up">
         <h2 className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">
           Choose Your Plan
         </h2>
@@ -273,7 +281,7 @@ export default function PlansPage({ onNavigate }) {
           TWO PLAN CARDS (WITH ₹199 CUT TO ₹30)
          ======================================================== */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 max-w-4xl">
-        {PLANS.map((p) => {
+        {PLANS.map((p, idx) => {
           const isSelected = selectedPlan?.id === p.id;
           const is30Days = p.id === 'plan_30d';
           const isCurrentActive = userIsPaid && currentPlan?.planId === p.id;
@@ -282,12 +290,13 @@ export default function PlansPage({ onNavigate }) {
           return (
             <div
               key={p.id}
+              data-reveal="scale"
               onClick={() => {
                 if (!isLockedByAnnual) {
                   handleSelectPlan(p);
                 }
               }}
-              className={`rounded-3xl p-5 sm:p-7 flex flex-col justify-between border-2 transition-all relative bg-white ${
+              className={`rounded-3xl p-5 sm:p-7 flex flex-col justify-between border-2 transition-all relative bg-white card-hover-lift stagger-${idx + 1} ${
                 isLockedByAnnual
                   ? isCurrentActive
                     ? 'border-neutral-900 ring-2 ring-neutral-900/10 opacity-95 shadow-sm'

@@ -51,7 +51,7 @@ export default function SavedPage({ onNavigate }) {
   return (
     <div className="space-y-6">
       {/* Header Info */}
-      <div className="p-5 rounded-3xl bg-white border border-[#EAE3DB] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
+      <div data-reveal="up" className="p-5 rounded-3xl bg-white border border-[#EAE3DB] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm card-hover-lift">
         <div>
           <h2 className="text-base sm:text-lg font-black text-neutral-950">
             Your Outreach Shortlist ({savedCreators.length})
