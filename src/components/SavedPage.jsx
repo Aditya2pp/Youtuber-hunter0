@@ -7,11 +7,19 @@ import React, { useState, useEffect } from 'react';
 import { CREATORS } from '../../lib/data.js';
 import { isPaid, savedIds, toggleSave, subscribeStore, getLiveCreators } from '../../lib/store.js';
 import CreatorCard from '../../lib/CreatorCard.js';
+import { initScrollReveal } from '../../lib/scrollReveal.js';
 
 export default function SavedPage({ onNavigate }) {
   const [userIsPaid, setUserIsPaid] = useState(() => isPaid());
   const [savedList, setSavedList] = useState(() => (Array.isArray(savedIds()) ? savedIds() : []));
   const [creatorsList, setCreatorsList] = useState(CREATORS);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      initScrollReveal();
+    }, 40);
+    return () => clearTimeout(timer);
+  }, [savedList.length]);
 
   useEffect(() => {
     let mounted = true;

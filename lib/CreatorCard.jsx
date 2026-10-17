@@ -51,7 +51,7 @@ export default function CreatorCard({
     return (
       <div
         data-reveal="up"
-        className={`rounded-3xl border-2 border-dashed border-[#D8CFC5] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-white/70 card-hover-lift stagger-${(index % 6) + 1}`}
+        className={`rounded-3xl border-2 border-dashed border-[#D8CFC5] p-5 sm:p-6 flex flex-col justify-between relative overflow-hidden bg-white/70 hover-lift stagger-${(index % 6) + 1}`}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
@@ -59,8 +59,8 @@ export default function CreatorCard({
               {creator.name.charAt(0)}
             </div>
             <div>
-              <div className="h-5 w-28 bg-neutral-200 rounded-md mb-1.5" />
-              <div className="h-3.5 w-16 bg-neutral-200/60 rounded" />
+              <div className="h-5 w-28 bg-neutral-200 skeleton-shimmer rounded-md mb-1.5" />
+              <div className="h-3.5 w-16 bg-neutral-200/60 skeleton-shimmer rounded" />
             </div>
           </div>
           <span className="text-xs px-2.5 py-1 rounded-full bg-rose-50 text-[#FF3358] font-bold border border-rose-100">
@@ -69,7 +69,7 @@ export default function CreatorCard({
         </div>
 
         <div className="my-5 p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] text-center">
-          <div className="w-9 h-9 mx-auto mb-2 rounded-xl bg-white border border-[#EAE3DB] flex items-center justify-center text-[#FF3358] shadow-xs">
+          <div className="w-9 h-9 mx-auto mb-2 rounded-xl bg-white border border-[#EAE3DB] flex items-center justify-center text-[#FF3358] shadow-xs animate-lock-pulse">
             <svg
               className="w-4 h-4"
               viewBox="0 0 24 24"
@@ -117,7 +117,7 @@ export default function CreatorCard({
   return (
     <div
       data-reveal="up"
-      className={`rounded-3xl border border-[#EAE3DB] p-5 sm:p-6 bg-white shadow-sm hover:shadow-md card-hover-lift transition-all duration-200 flex flex-col justify-between stagger-${(index % 6) + 1}`}
+      className={`rounded-3xl border border-[#EAE3DB] p-5 sm:p-6 bg-white shadow-sm hover:shadow-md hover-lift transition-all duration-200 flex flex-col justify-between stagger-${(index % 6) + 1}`}
     >
       <div>
         {/* Card Header: Avatar, Name, and Save It Button */}
@@ -151,7 +151,7 @@ export default function CreatorCard({
             type="button"
             onClick={() => onToggleSave && onToggleSave(creator.id)}
             aria-label={isSaved ? `Unsave ${creator.name}` : `Save ${creator.name}`}
-            className={`px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all focus-visible:outline-2 focus-visible:outline-[#FF3358] shrink-0 cursor-pointer flex items-center gap-1.5 shadow-xs ${
+            className={`px-3 py-1.5 rounded-xl border text-xs font-extrabold transition-all duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-[#FF3358] shrink-0 cursor-pointer flex items-center gap-1.5 shadow-xs ${
               isSaved
                 ? 'bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100'
                 : 'bg-white border-[#EAE3DB] text-neutral-800 hover:border-[#FF3358] hover:text-[#FF3358]'
@@ -159,15 +159,15 @@ export default function CreatorCard({
           >
             {isSaved ? (
               <>
-                <svg className="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                  <polyline points="20 6 9 17 4 12" />
+                <svg className="w-3.5 h-3.5 text-emerald-600 bookmark-animate" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
                 </svg>
                 <span>Saved</span>
               </>
             ) : (
               <>
                 <svg
-                  className="w-3.5 h-3.5"
+                  className="w-3.5 h-3.5 transition-colors duration-200"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"

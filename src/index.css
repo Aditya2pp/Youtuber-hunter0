@@ -36,6 +36,13 @@
   --dash-emerald: #10B981;
   --dash-sidebar: #F4EFEA;
   --dash-topbar: rgba(250, 246, 242, 0.92);
+
+  /* Animation Tokens */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 200ms;
+  --dur-base: 320ms;
+  --dur-slow: 650ms;
 }
 
 html.dark,
@@ -422,31 +429,53 @@ html.dark body,
 }
 
 /* ====================================================================
-   BUTTON / SCENE TRANSITIONS (Runs every time any page/tab is changed)
+   VIEW TRANSITION API & SMOOTH BLURRY FADE (Zero Flicker)
    ==================================================================== */
-@keyframes sceneFadeSlide {
+
+/* View Transitions API native crossfade with subtle blur */
+::view-transition-old(root) {
+  animation: 180ms var(--ease-out) both fadeBlurOut;
+}
+
+::view-transition-new(root) {
+  animation: 260ms var(--ease-out) both fadeBlurIn;
+}
+
+@keyframes fadeBlurOut {
+  0% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+
+@keyframes fadeBlurIn {
   0% {
     opacity: 0;
-    transform: translateY(16px);
+    filter: blur(8px);
+    transform: translateY(8px);
   }
   100% {
     opacity: 1;
+    filter: blur(0px);
     transform: translateY(0);
   }
 }
 
-.scene-page-transition {
-  animation: sceneFadeSlide 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
-}
-
-.scene-content-transition {
-  animation: sceneFadeSlide 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
-  will-change: opacity, transform;
+/* Fallback & In-App Blurry Fade Scene Transitions */
+.scene-view-transition,
+.scene-content-transition,
+.scene-page-transition,
+.view-blurry-fade {
+  animation: fadeBlurIn 260ms var(--ease-out) both;
+  will-change: opacity, transform, filter;
 }
 
 /* ====================================================================
-   SMOOTH SCROLL ANIMATIONS & REVEAL SYSTEM
+   SMOOTH SCROLL ANIMATIONS & GLIDE REVEAL SYSTEM
    ==================================================================== */
 
 /* Sleek custom scrollbar */
@@ -478,90 +507,283 @@ html.dark body,
   background-color: #5C4D40;
 }
 
-/* Base scroll reveal (Fade Up with spring ease) */
-.reveal-on-scroll,
-[data-reveal],
-[data-reveal="up"] {
+/* Keyframe Glide Animations (Immune to Tailwind transition-colors overrides) */
+@keyframes glideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glideLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glideRight {
+  0% {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glideScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Initial unrevealed state for elements awaiting scroll */
+html.js-ready .reveal:not(.revealed):not(.is-revealed),
+html.js-ready [data-reveal]:not([data-reveal="none"]):not(.revealed):not(.is-revealed),
+html.js-ready .reveal-pop:not(.revealed):not(.is-revealed) {
   opacity: 0;
-  transform: translateY(26px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  visibility: hidden;
   will-change: opacity, transform;
 }
 
-.reveal-on-scroll.is-revealed,
-[data-reveal].is-revealed,
-[data-reveal="up"].is-revealed {
-  opacity: 1;
-  transform: translateY(0);
+/* Active Glide-In Animations (Fires once per element, smoothly and on time) */
+html.js-ready .reveal.revealed,
+html.js-ready .reveal.is-revealed,
+html.js-ready [data-reveal].revealed,
+html.js-ready [data-reveal].is-revealed,
+html.js-ready [data-reveal="up"].revealed,
+html.js-ready [data-reveal="up"].is-revealed {
+  visibility: visible;
+  animation: glideUp 650ms var(--ease-out) both;
 }
 
-/* Scale & Pop reveal (for key cards & badges) */
-[data-reveal="scale"] {
-  opacity: 0;
-  transform: scale(0.94) translateY(20px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+html.js-ready [data-reveal="left"].revealed,
+html.js-ready [data-reveal="left"].is-revealed {
+  visibility: visible;
+  animation: glideLeft 650ms var(--ease-out) both;
 }
 
-[data-reveal="scale"].is-revealed {
-  opacity: 1;
-  transform: scale(1) translateY(0);
+html.js-ready [data-reveal="right"].revealed,
+html.js-ready [data-reveal="right"].is-revealed {
+  visibility: visible;
+  animation: glideRight 650ms var(--ease-out) both;
 }
 
-/* Slide from Left */
-[data-reveal="left"] {
-  opacity: 0;
-  transform: translateX(-30px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+html.js-ready .reveal-pop.revealed,
+html.js-ready .reveal-pop.is-revealed,
+html.js-ready [data-reveal="pop"].revealed,
+html.js-ready [data-reveal="pop"].is-revealed,
+html.js-ready [data-reveal="scale"].revealed,
+html.js-ready [data-reveal="scale"].is-revealed {
+  visibility: visible;
+  animation: glideScale 650ms var(--ease-out) both;
 }
 
-[data-reveal="left"].is-revealed {
-  opacity: 1;
-  transform: translateX(0);
+/* Stagger delay classes (80ms - 100ms intervals) */
+.reveal-stagger > *:nth-child(1), .stagger-1 { animation-delay: 80ms !important; }
+.reveal-stagger > *:nth-child(2), .stagger-2 { animation-delay: 160ms !important; }
+.reveal-stagger > *:nth-child(3), .stagger-3 { animation-delay: 240ms !important; }
+.reveal-stagger > *:nth-child(4), .stagger-4 { animation-delay: 320ms !important; }
+.reveal-stagger > *:nth-child(5), .stagger-5 { animation-delay: 400ms !important; }
+.reveal-stagger > *:nth-child(6), .stagger-6 { animation-delay: 480ms !important; }
+.reveal-stagger > *:nth-child(7), .stagger-7 { animation-delay: 560ms !important; }
+.reveal-stagger > *:nth-child(8), .stagger-8 { animation-delay: 640ms !important; }
+
+/* Bookmark pop bounce animation on click */
+@keyframes bookmarkBounce {
+  0% { transform: scale(0.9); }
+  40% { transform: scale(1.35) rotate(-10deg); }
+  75% { transform: scale(0.95) rotate(4deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
 
-/* Slide from Right */
-[data-reveal="right"] {
-  opacity: 0;
-  transform: translateX(30px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform;
+.bookmark-animate {
+  animation: bookmarkBounce 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-[data-reveal="right"].is-revealed {
-  opacity: 1;
-  transform: translateX(0);
+/* ====================================================================
+   BUTTON AND HOVER INTERACTIONS
+   ==================================================================== */
+
+/* Primary buttons: hover translateY(-2px) + shadow, active scale(0.97) */
+@media (hover: hover) {
+  .btn-25d,
+  button.bg-\[\#FF3358\],
+  a.bg-\[\#FF3358\],
+  button.bg-neutral-950,
+  button.bg-neutral-900 {
+    transition: transform var(--dur-fast) var(--ease-out),
+                box-shadow var(--dur-fast) var(--ease-out),
+                background-color var(--dur-fast) var(--ease-out);
+  }
+
+  .btn-25d:hover,
+  button.bg-\[\#FF3358\]:hover,
+  a.bg-\[\#FF3358\]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px -4px rgba(255, 51, 88, 0.42);
+  }
+
+  .btn-25d:active,
+  button.bg-\[\#FF3358\]:active,
+  a.bg-\[\#FF3358\]:active,
+  button.bg-neutral-950:active,
+  button.bg-neutral-900:active {
+    transform: scale(0.97) translateY(0);
+  }
 }
 
-/* Stagger delay classes for graceful cascading */
-.stagger-1 { transition-delay: 0.06s !important; }
-.stagger-2 { transition-delay: 0.12s !important; }
-.stagger-3 { transition-delay: 0.18s !important; }
-.stagger-4 { transition-delay: 0.24s !important; }
-.stagger-5 { transition-delay: 0.30s !important; }
-.stagger-6 { transition-delay: 0.36s !important; }
-.stagger-7 { transition-delay: 0.42s !important; }
-.stagger-8 { transition-delay: 0.48s !important; }
+/* Cards: gentle hover lift translateY(-4px) with soft shadow, 250ms */
+@media (hover: hover) {
+  .hover-lift,
+  .card-hover-lift {
+    transition: transform 250ms var(--ease-out),
+                box-shadow 250ms var(--ease-out),
+                border-color 250ms var(--ease-out);
+  }
 
-/* Subtle floating card interaction on hover */
-.card-hover-lift {
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
-              border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  .hover-lift:hover,
+  .card-hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px -8px rgba(17, 12, 46, 0.08), 0 4px 8px -2px rgba(17, 12, 46, 0.03);
+  }
+
+  .dark .hover-lift:hover,
+  .dark .card-hover-lift:hover {
+    box-shadow: 0 14px 28px -8px rgba(0, 0, 0, 0.55);
+  }
 }
 
-.card-hover-lift:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 30px -8px rgba(17, 12, 46, 0.08), 0 4px 8px -2px rgba(17, 12, 46, 0.03);
+/* Nav links: animated underline growing left-to-right */
+.nav-link-animated {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 2px;
 }
 
-.dark .card-hover-lift:hover {
-  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.55);
+.nav-link-animated::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 2px;
+  background-color: #FF3358;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 240ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .nav-link-animated:hover::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Smooth Focus Ring for inputs and selects */
+input, select, textarea {
+  transition: border-color 200ms var(--ease-out),
+              box-shadow 200ms var(--ease-out),
+              background-color 200ms var(--ease-out);
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #FF3358 !important;
+  box-shadow: 0 0 0 3px rgba(255, 51, 88, 0.16) !important;
+}
+
+/* Locked Creator Cards Shimmer & Pulse */
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, #EAE3DB 25%, #F7F3EE 50%, #EAE3DB 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.9s infinite ease-in-out;
+}
+
+.dark .skeleton-shimmer {
+  background: linear-gradient(90deg, #2D251F 25%, #3D332B 50%, #2D251F 75%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.9s infinite ease-in-out;
+}
+
+@keyframes lockIconPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.92;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+.animate-lock-pulse {
+  animation: lockIconPulse 2.4s infinite ease-in-out;
+}
+
+/* Popular Pricing Card subtle scale and glow */
+.popular-pricing-card {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.12), 0 0 0 1.5px rgba(17, 17, 17, 0.85);
+  transition: transform 260ms var(--ease-out), box-shadow 260ms var(--ease-out);
+}
+
+@media (hover: hover) {
+  .popular-pricing-card:hover {
+    transform: translateY(-5px) scale(1.015);
+    box-shadow: 0 20px 42px -12px rgba(255, 51, 88, 0.22), 0 0 0 2px #FF3358;
+  }
+}
+
+/* FAQ Accordion Smooth Grid Height Expand/Collapse */
+.faq-grid-collapse {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 280ms var(--ease-out);
+}
+
+.faq-grid-collapse.is-expanded {
+  grid-template-rows: 1fr;
+}
+
+.faq-grid-inner {
+  overflow: hidden;
+}
+
+.faq-icon-rotate {
+  transition: transform 250ms var(--ease-out);
+}
+
+.faq-icon-rotate.is-rotated {
+  transform: rotate(45deg);
+}
+
+/* Hero subtle parallax shifts */
+.hero-parallax-1 {
+  transform: translateY(var(--parallax-y, 0px));
+  transition: transform 0.1s linear;
 }
 
 /* Reduced motion preference */
@@ -572,8 +794,9 @@ html.dark body,
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .reveal-on-scroll,
-  [data-reveal] {
+  .reveal,
+  [data-reveal],
+  .reveal-pop {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;

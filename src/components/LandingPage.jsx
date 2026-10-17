@@ -194,7 +194,7 @@ export default function LandingPage({ onNavigate }) {
             <a
               key={link.href}
               href={link.href}
-              className="hover:text-black transition-colors focus-visible:outline-2 focus-visible:outline-[#FF3358] rounded px-1"
+              className="nav-link-animated hover:text-black transition-colors focus-visible:outline-2 focus-visible:outline-[#FF3358] rounded px-1"
             >
               {link.label}
             </a>
@@ -397,6 +397,7 @@ export default function LandingPage({ onNavigate }) {
                   CARD 1: SEARCH YOUTUBERS CARD (Center-Left)
                  ======================================================== */}
               <div
+                id="hero-float-card-1"
                 className="absolute top-2 left-0 sm:left-2 w-[280px] sm:w-[300px] bg-white rounded-3xl p-4 sm:p-5 shadow-xl border border-[#EAE3DB] z-20 animate-float-3"
               >
                 <h3 className="font-extrabold text-base text-neutral-900 mb-3">
@@ -564,6 +565,7 @@ export default function LandingPage({ onNavigate }) {
                   CARD 2: CREATOR PROFILE CARD (Top-Right)
                  ======================================================== */}
               <div
+                id="hero-float-card-2"
                 className="absolute top-14 sm:top-12 right-0 sm:right-2 w-[240px] sm:w-[260px] bg-white rounded-3xl p-4 shadow-2xl border border-[#EAE3DB] z-25 animate-float-1"
               >
                 {/* Thumbnail banner simulation with avatar and play badge */}
@@ -675,6 +677,7 @@ export default function LandingPage({ onNavigate }) {
                   CARD 3: CLIENT / OPPORTUNITY CARD (Bottom-Right)
                  ======================================================== */}
               <div
+                id="hero-float-card-3"
                 className="absolute bottom-0 right-2 sm:right-6 w-[290px] sm:w-[320px] bg-white rounded-3xl p-4 sm:p-5 shadow-2xl border border-[#EAE3DB] z-30 animate-float-2"
               >
                 {/* Header with red briefcase badge and timestamp */}
@@ -968,7 +971,7 @@ export default function LandingPage({ onNavigate }) {
             </div>
 
             {/* 1 Year Pro */}
-            <div data-reveal="scale" className="p-7 rounded-3xl bg-white border-2 border-neutral-900 flex flex-col justify-between relative shadow-xl card-hover-lift stagger-3">
+            <div data-reveal="scale" className="p-7 rounded-3xl bg-white border-2 border-neutral-900 flex flex-col justify-between relative shadow-xl popular-pricing-card card-hover-lift stagger-3">
               <div className="absolute -top-3 right-6 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-neutral-900 text-white shadow-xs">
                 Popular
               </div>
@@ -1121,15 +1124,21 @@ export default function LandingPage({ onNavigate }) {
                     className="w-full p-4 sm:p-5 text-left font-bold text-neutral-950 text-sm sm:text-base flex items-center justify-between gap-4 cursor-pointer focus-visible:outline-2 focus-visible:outline-[#FF3358]"
                   >
                     <span>{faq.q}</span>
-                    <span className="text-neutral-500 font-mono text-xl shrink-0">
-                      {isOpen ? '−' : '+'}
+                    <span
+                      className={`text-neutral-500 font-mono text-xl shrink-0 faq-icon-rotate ${
+                        isOpen ? 'is-rotated text-[#FF3358]' : ''
+                      }`}
+                    >
+                      +
                     </span>
                   </button>
-                  {isOpen && (
-                    <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed border-t border-[#EAE3DB] animate-fadeIn">
-                      {faq.a}
+                  <div className={`faq-grid-collapse ${isOpen ? 'is-expanded' : ''}`}>
+                    <div className="faq-grid-inner">
+                      <div className="px-5 pb-5 pt-1 text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed border-t border-[#EAE3DB]">
+                        {faq.a}
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               );
             })}

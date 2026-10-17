@@ -9,7 +9,7 @@
  * - /dashboard/plans (Subscription & Plans)
  * - /dashboard/settings (Settings)
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import LandingPage from './components/LandingPage.jsx';
 import AuthForm from '../lib/AuthForm.js';
 import DashboardLayout from './components/DashboardLayout.jsx';
@@ -41,12 +41,10 @@ export default function App() {
       path = decodeURIComponent(path);
     } catch {}
     // Match potential route inside repository subfolder or root
-    // e.g. /admin-011, /admin-011@, /admin, /dashboard/find, /my-repo/dashboard/find
     const match = path.match(/\/(login|signup|admin-011@?|admin-011%40|admin|dashboard(?:\/[a-zA-Z0-9_-]+)*)/i);
     if (match) {
       let targetRoute = '/' + match[1];
       if (targetRoute === '/admin-011%40' || targetRoute === '/admin-011') targetRoute = '/admin-011@';
-      // Convert direct path to hash route smoothly without reloading if on GitHub Pages
       if (typeof window.history.replaceState === 'function') {
         const repoBase = path.slice(0, match.index) || '';
         try {
@@ -61,13 +59,54 @@ export default function App() {
   };
 
   const [currentPath, setCurrentPath] = useState(getCleanPath);
-  const [navKey, setNavKey] = useState(0);
+  const currentPathRef = useRef(currentPath);
   const [scrollProgress, setScrollProgress] = useState(0);
+
+  // Keep ref synchronized
+  useEffect(() => {
+    currentPathRef.current = currentPath;
+  }, [currentPath]);
+
+  // Safe View Transition helper that suppresses aborted/skipped transition rejections
+  const safeStartViewTransition = (callback: () => void) => {
+    if (
+      typeof document !== 'undefined' &&
+      'startViewTransition' in document &&
+      typeof (document as any).startViewTransition === 'function'
+    ) {
+      try {
+        const transition = (document as any).startViewTransition(() => {
+          callback();
+        });
+        if (transition) {
+          if (transition.ready && typeof transition.ready.catch === 'function') {
+            transition.ready.catch(() => {});
+          }
+          if (transition.finished && typeof transition.finished.catch === 'function') {
+            transition.finished.catch(() => {});
+          }
+          if (transition.updateCallbackDone && typeof transition.updateCallbackDone.catch === 'function') {
+            transition.updateCallbackDone.catch(() => {});
+          }
+        }
+        return transition;
+      } catch {
+        callback();
+      }
+    } else {
+      callback();
+    }
+  };
 
   useEffect(() => {
     const onLocationChange = () => {
-      setCurrentPath(getCleanPath());
-      setNavKey((prev) => prev + 1);
+      const next = getCleanPath();
+      if (next !== currentPathRef.current) {
+        currentPathRef.current = next;
+        safeStartViewTransition(() => {
+          setCurrentPath(next);
+        });
+      }
     };
     window.addEventListener('popstate', onLocationChange);
     window.addEventListener('hashchange', onLocationChange);
@@ -92,36 +131,48 @@ export default function App() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentPath, navKey]);
+  }, [currentPath]);
 
   // Run scroll reveal observer whenever path changes or after DOM updates
   useEffect(() => {
     const timer = setTimeout(() => {
       initScrollReveal();
-    }, 50);
+    }, 40);
     return () => clearTimeout(timer);
-  }, [currentPath, navKey]);
+  }, [currentPath]);
 
   const navigate = (path: string) => {
-    if (typeof window !== 'undefined') {
-      let cleanTarget = path.startsWith('/') ? path : '/' + path;
-      cleanTarget = '/' + cleanTarget.replace(/^\/+|\/+$/g, '');
-      // Always update hash - works universally on GitHub Pages, preview environments, custom domains
-      window.location.hash = '#' + cleanTarget;
+    if (typeof window === 'undefined') return;
+    let cleanTarget = path.startsWith('/') ? path : '/' + path;
+    cleanTarget = '/' + cleanTarget.replace(/^\/+|\/+$/g, '');
+    if (cleanTarget === currentPathRef.current) return;
+
+    currentPathRef.current = cleanTarget;
+    safeStartViewTransition(() => {
       setCurrentPath(cleanTarget);
-      setNavKey((prev) => prev + 1);
+      if (window.location.hash !== '#' + cleanTarget) {
+        window.location.hash = '#' + cleanTarget;
+      }
       window.scrollTo(0, 0);
-    }
+    });
   };
 
-  // Route matching
+  // Route matching with persistent layout and scene transitions
   const renderRoute = () => {
     if (currentPath === '/login') {
-      return <AuthForm mode="login" onNavigate={navigate} />;
+      return (
+        <div key="login" className="scene-view-transition min-h-screen w-full">
+          <AuthForm mode="login" onNavigate={navigate} />
+        </div>
+      );
     }
 
     if (currentPath === '/signup') {
-      return <AuthForm mode="signup" onNavigate={navigate} />;
+      return (
+        <div key="signup" className="scene-view-transition min-h-screen w-full">
+          <AuthForm mode="signup" onNavigate={navigate} />
+        </div>
+      );
     }
 
     if (
@@ -130,42 +181,56 @@ export default function App() {
       currentPath === '/admin-011' ||
       currentPath === '/admin'
     ) {
-      return <AdminPage onNavigate={navigate} />;
-    }
-
-    if (currentPath === '/dashboard/saved') {
       return (
-        <DashboardLayout activeMenu="saved" onNavigate={navigate}>
-          <SavedPage onNavigate={navigate} />
-        </DashboardLayout>
+        <div key="admin" className="scene-view-transition min-h-screen w-full">
+          <AdminPage onNavigate={navigate} />
+        </div>
       );
     }
 
-    if (currentPath === '/dashboard/plans') {
-      return (
-        <DashboardLayout activeMenu="plans" onNavigate={navigate}>
-          <PlansPage onNavigate={navigate} />
-        </DashboardLayout>
-      );
-    }
-
-    if (currentPath === '/dashboard/settings') {
-      return (
-        <DashboardLayout activeMenu="settings" onNavigate={navigate}>
-          <SettingsPage onNavigate={navigate} />
-        </DashboardLayout>
-      );
-    }
-
-    if (currentPath === '/dashboard/find' || currentPath.startsWith('/dashboard')) {
+    // Persist DashboardLayout across dashboard routes to eliminate sidebar/header flashing
+    if (currentPath.startsWith('/dashboard')) {
+      if (currentPath === '/dashboard/saved') {
+        return (
+          <DashboardLayout activeMenu="saved" onNavigate={navigate}>
+            <div key="saved" className="scene-view-transition w-full">
+              <SavedPage onNavigate={navigate} />
+            </div>
+          </DashboardLayout>
+        );
+      }
+      if (currentPath === '/dashboard/plans') {
+        return (
+          <DashboardLayout activeMenu="plans" onNavigate={navigate}>
+            <div key="plans" className="scene-view-transition w-full">
+              <PlansPage onNavigate={navigate} />
+            </div>
+          </DashboardLayout>
+        );
+      }
+      if (currentPath === '/dashboard/settings') {
+        return (
+          <DashboardLayout activeMenu="settings" onNavigate={navigate}>
+            <div key="settings" className="scene-view-transition w-full">
+              <SettingsPage onNavigate={navigate} />
+            </div>
+          </DashboardLayout>
+        );
+      }
       return (
         <DashboardLayout activeMenu="find" onNavigate={navigate}>
-          <FindPage onNavigate={navigate} />
+          <div key="find" className="scene-view-transition w-full">
+            <FindPage onNavigate={navigate} />
+          </div>
         </DashboardLayout>
       );
     }
 
-    return <LandingPage onNavigate={navigate} />;
+    return (
+      <div key="landing" className="scene-view-transition min-h-screen w-full">
+        <LandingPage onNavigate={navigate} />
+      </div>
+    );
   };
 
   return (
@@ -177,7 +242,7 @@ export default function App() {
           style={{ width: `${scrollProgress}%`, opacity: scrollProgress > 1 ? 1 : 0 }}
         />
       </div>
-      <div key={`${currentPath}-${navKey}`} className="scene-page-transition min-h-screen w-full">
+      <div className="min-h-screen w-full bg-[#FAF6F2] dark:bg-[#13100E] text-neutral-900 dark:text-[#FAF6F2] transition-colors duration-200">
         {renderRoute()}
       </div>
     </ErrorBoundary>
