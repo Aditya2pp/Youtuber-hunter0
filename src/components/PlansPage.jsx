@@ -26,6 +26,11 @@ export default function PlansPage({ onNavigate }) {
   const [formError, setFormError] = useState('');
   const [copiedUpi, setCopiedUpi] = useState(false);
 
+  // Modals state
+  const [showHowToBuyModal, setShowHowToBuyModal] = useState(false);
+  const [showScreenshotModal, setShowScreenshotModal] = useState(false);
+  const [screenshotModalError, setScreenshotModalError] = useState('');
+
   // Payment Success Animation State
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -85,12 +90,15 @@ export default function PlansPage({ onNavigate }) {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setFormError('Please upload an image file (PNG, JPG, or WEBP).');
+      const err = 'Please upload a valid image receipt (PNG, JPG, or WEBP).';
+      setFormError(err);
+      setScreenshotModalError(err);
       return;
     }
 
     setScreenshotName(file.name);
     setFormError('');
+    setScreenshotModalError('');
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -99,18 +107,59 @@ export default function PlansPage({ onNavigate }) {
     reader.readAsDataURL(file);
   };
 
-  const handleCompletePayment = async (e) => {
-    if (e) e.preventDefault();
-    setFormError('');
+  const handleDownloadQR = () => {
+    try {
+      const svg = document.getElementById('payment-qr-svg');
+      if (!svg) return;
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      canvas.width = 600;
+      canvas.height = 600;
+      img.onload = () => {
+        if (ctx) {
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, 600, 600);
+          ctx.drawImage(img, 40, 40, 520, 520);
+          const pngUrl = canvas.toDataURL('image/png');
+          const downloadLink = document.createElement('a');
+          downloadLink.href = pngUrl;
+          downloadLink.download = `YouTuberFinder-Payment-QR-Rs${selectedPlan?.price || '30'}.png`;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+        }
+      };
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
+    } catch (err) {
+      console.error('Error downloading QR code:', err);
+    }
+  };
 
-    // Screenshot is mandatory
+  const handleOpenScreenshotModal = () => {
+    setFormError('');
+    setScreenshotModalError('');
+    const currentUser = me();
+    if (!currentUser || currentUser.isGuest) {
+      setFormError('Please log in or sign up first so your plan can be activated for your account.');
+      return;
+    }
+    setShowScreenshotModal(true);
+  };
+
+  const handleConfirmDone = async (e) => {
+    if (e) e.preventDefault();
+    setScreenshotModalError('');
+
     if (!screenshotData) {
-      setFormError('Payment screenshot is required! Please upload your payment receipt.');
+      setScreenshotModalError('⚠️ Payment screenshot is mandatory! Please upload your payment receipt before submitting.');
       return;
     }
 
     const currentUser = me();
     if (!currentUser || currentUser.isGuest) {
+      setShowScreenshotModal(false);
       setFormError('Please log in or sign up first so your plan can be activated for your account.');
       return;
     }
@@ -127,10 +176,11 @@ export default function PlansPage({ onNavigate }) {
       });
 
       setIsProcessing(false);
+      setShowScreenshotModal(false);
       setShowSuccessModal(true);
     } catch (err) {
       setIsProcessing(false);
-      setFormError(err.message || 'Error processing payment.');
+      setScreenshotModalError(err.message || 'Error processing payment.');
     }
   };
 
@@ -141,6 +191,237 @@ export default function PlansPage({ onNavigate }) {
 
   return (
     <div className="space-y-8">
+      {/* ========================================================
+          HOW TO BUY SUBSCRIPTION MODAL (STEP-BY-STEP POPUP)
+         ======================================================== */}
+      {showHowToBuyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-lg bg-white rounded-[32px] p-6 sm:p-8 shadow-2xl border-2 border-neutral-900 overflow-hidden transform animate-scaleUp text-left">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F0EAE3] mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#FF3358] border border-rose-200 flex items-center justify-center font-black text-lg">
+                  💡
+                </div>
+                <div>
+                  <h3 className="text-lg sm:text-xl font-black text-neutral-950">
+                    How To Buy Subscription
+                  </h3>
+                  <p className="text-xs text-neutral-500 font-medium">
+                    Follow these 4 simple steps to activate your plan:
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHowToBuyModal(false)}
+                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors"
+                title="Close"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3.5">
+              {/* Step 1 */}
+              <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
+                <div className="w-7 h-7 rounded-xl bg-neutral-950 text-white font-black text-xs flex items-center justify-center shrink-0">
+                  1
+                </div>
+                <div className="text-xs">
+                  <strong className="block font-black text-neutral-950 text-sm mb-0.5">
+                    Scan or Download QR Code
+                  </strong>
+                  <p className="text-neutral-600 font-medium leading-relaxed">
+                    Screen par dikh rahe QR scanner ko scan karein, ya <strong>"Download QR Code"</strong> button par click karke scanner image apne phone/PC me save kar lein.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
+                <div className="w-7 h-7 rounded-xl bg-neutral-950 text-white font-black text-xs flex items-center justify-center shrink-0">
+                  2
+                </div>
+                <div className="text-xs">
+                  <strong className="block font-black text-neutral-950 text-sm mb-0.5">
+                    Pay via Any UPI App
+                  </strong>
+                  <p className="text-neutral-600 font-medium leading-relaxed">
+                    Apne kisi bhi UPI app (Google Pay, PhonePe, Paytm, CRED, BHIM) me QR scanner upload karein ya Official UPI ID <code className="bg-white px-1.5 py-0.5 rounded border border-[#EAE3DB] font-mono font-bold text-neutral-900">{UPI_ID}</code> par exact ₹{selectedPlan?.price || '30'} pay karein.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
+                <div className="w-7 h-7 rounded-xl bg-neutral-950 text-white font-black text-xs flex items-center justify-center shrink-0">
+                  3
+                </div>
+                <div className="text-xs">
+                  <strong className="block font-black text-neutral-950 text-sm mb-0.5">
+                    Take Payment Screenshot
+                  </strong>
+                  <p className="text-neutral-600 font-medium leading-relaxed">
+                    Payment successful hone par payment confirmation receipt ka ek clear screenshot le lein.
+                  </p>
+                </div>
+              </div>
+
+              {/* Step 4 */}
+              <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200">
+                <div className="w-7 h-7 rounded-xl bg-[#FF3358] text-white font-black text-xs flex items-center justify-center shrink-0">
+                  4
+                </div>
+                <div className="text-xs">
+                  <strong className="block font-black text-neutral-950 text-sm mb-0.5">
+                    Click "Payment Complete" & Submit
+                  </strong>
+                  <p className="text-neutral-600 font-medium leading-relaxed">
+                    Niche <strong>"Payment Complete"</strong> button dabayein, popup me apna screenshot upload karein aur <strong>"Done"</strong> click karein. Aapka subscription instantly activate ho jayega!
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={() => setShowHowToBuyModal(false)}
+                className="w-full py-3.5 px-6 rounded-2xl text-xs sm:text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-95 cursor-pointer"
+              >
+                Samajh Gaya / Proceed To Pay →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================
+          MANDATORY SCREENSHOT SUBMISSION POPUP MODAL
+         ======================================================== */}
+      {showScreenshotModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-md bg-white rounded-[32px] p-6 sm:p-8 shadow-2xl border-2 border-neutral-900 overflow-hidden transform animate-scaleUp text-left">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F0EAE3] mb-4">
+              <div>
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 inline-block mb-1">
+                  Mandatory Verification
+                </span>
+                <h3 className="text-lg sm:text-xl font-black text-neutral-950">
+                  Submit Payment Screenshot
+                </h3>
+                <p className="text-xs text-neutral-500 font-medium">
+                  Plan: {selectedPlan?.name} (₹{selectedPlan?.price})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowScreenshotModal(false)}
+                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors"
+                title="Cancel"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Error banner inside modal */}
+            {screenshotModalError && (
+              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
+                <svg className="w-4 h-4 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+                <span>{screenshotModalError}</span>
+              </div>
+            )}
+
+            {/* Upload Area */}
+            <div className="space-y-3">
+              <label className="block text-xs font-extrabold text-neutral-900">
+                Attach Payment Receipt <span className="text-[#FF3358]">* (Mandatory)</span>
+              </label>
+
+              <div className="relative border-2 border-dashed border-[#D8CFC5] hover:border-[#FF3358] rounded-2xl p-5 bg-[#FAF6F2] transition-colors text-center cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/*"
+                  required
+                  onChange={handleFileChange}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+
+                {screenshotData ? (
+                  <div className="space-y-2">
+                    <div className="w-20 h-20 mx-auto rounded-xl overflow-hidden border border-[#EAE3DB] shadow-xs bg-white">
+                      <img src={screenshotData} alt="Receipt preview" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="text-xs font-extrabold text-emerald-700 flex items-center justify-center gap-1.5">
+                      <svg className="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      <span className="truncate max-w-[200px]">{screenshotName || 'Screenshot attached'}</span>
+                    </div>
+                    <span className="text-[11px] text-neutral-500 font-semibold underline block">
+                      Click to change image
+                    </span>
+                  </div>
+                ) : (
+                  <div className="space-y-2 py-3">
+                    <div className="w-12 h-12 mx-auto rounded-2xl bg-white border border-[#EAE3DB] flex items-center justify-center text-[#FF3358] shadow-xs">
+                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                    </div>
+                    <span className="text-xs font-black text-neutral-950 block">
+                      Click to Select or Drop Screenshot Here
+                    </span>
+                    <span className="text-[11px] text-neutral-500 font-medium block">
+                      Attach payment proof (PNG, JPG, or WEBP)
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <p className="text-[11px] text-neutral-500 font-medium text-center">
+                Your payment screenshot is required to verify the ₹{selectedPlan?.price} transaction and activate your plan.
+              </p>
+            </div>
+
+            {/* Bottom Buttons: Done & Cancel */}
+            <div className="mt-6 space-y-2">
+              <button
+                type="button"
+                onClick={handleConfirmDone}
+                disabled={isProcessing}
+                className="w-full py-4 px-6 rounded-2xl text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-xl transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+              >
+                {isProcessing ? (
+                  <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>Done (Submit & Activate)</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowScreenshotModal(false)}
+                className="w-full py-2.5 text-xs font-bold text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
+              >
+                Cancel / Go Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ========================================================
           CELEBRATION / PAYMENT SUCCESS MODAL ANIMATION
          ======================================================== */}
@@ -446,10 +727,11 @@ export default function PlansPage({ onNavigate }) {
 
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 sm:gap-8 items-center">
             
-            {/* LEFT: QR CODE (Responsive on Mobile & Desktop) */}
+            {/* LEFT: QR CODE + DOWNLOAD QR BUTTON */}
             <div className="md:col-span-5 flex flex-col items-center text-center">
               <div className="p-3.5 sm:p-4 bg-white rounded-3xl shadow-md border-2 border-[#EAE3DB] inline-block max-w-[220px]">
                 <QRCodeSVG
+                  id="payment-qr-svg"
                   value={upiUrl}
                   size={190}
                   level="H"
@@ -457,31 +739,39 @@ export default function PlansPage({ onNavigate }) {
                   className="w-full h-auto"
                 />
               </div>
-              <span className="text-xs font-bold text-neutral-700 mt-2.5 block leading-tight">
+              <span className="text-xs font-bold text-neutral-800 mt-2.5 block leading-tight">
                 Scan with any UPI App
               </span>
               <span className="text-[11px] text-neutral-400 font-semibold mt-0.5 block">
-                (Google Pay, PhonePe, Paytm, BHIM)
+                (Google Pay, PhonePe, Paytm, BHIM, CRED)
               </span>
+
+              {/* SCANNER DOWNLOAD BUTTON */}
+              <button
+                type="button"
+                onClick={handleDownloadQR}
+                className="mt-3.5 w-full max-w-[210px] py-2.5 px-4 rounded-xl text-xs font-black bg-white border-2 border-neutral-900 text-neutral-950 hover:bg-neutral-950 hover:text-white transition-all shadow-xs flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                <span>Download QR Code</span>
+              </button>
             </div>
 
-            {/* RIGHT: MOBILE UPI APP BUTTON, UPI ID, SCREENSHOT UPLOAD */}
-            <div className="md:col-span-7 space-y-4 sm:space-y-5">
+            {/* RIGHT: PLAN DETAILS, UPI ID, HOW TO BUY LINK, AND PAYMENT COMPLETE BUTTON */}
+            <div className="md:col-span-7 space-y-4 sm:space-y-4">
               
-              {/* PRIMARY MOBILE UPI APP BUTTON (Most convenient on phone) */}
-              <div>
-                <a
-                  href={upiUrl}
-                  className="w-full py-4 px-5 rounded-2xl text-center text-sm sm:text-base font-black text-white bg-gradient-to-r from-[#FF3358] via-[#FF1F48] to-[#E62E7A] hover:opacity-95 shadow-lg shadow-rose-500/25 flex items-center justify-center gap-2.5 transition-transform active:scale-98 cursor-pointer"
-                >
-                  <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-                    <rect x="5" y="2" width="14" height="20" rx="3" />
-                    <line x1="12" y1="18" x2="12.01" y2="18" />
-                  </svg>
-                  <span>PAY BY ANY UPI APP (Click to Open)</span>
-                </a>
-                <span className="text-[11px] text-neutral-500 font-semibold mt-1.5 block text-center">
-                  Mobile users: Tap to open Google Pay, PhonePe, or Paytm directly.
+              {/* Plan Amount Pill */}
+              <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-50/60 border border-rose-200 flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block">Selected Plan</span>
+                  <span className="text-xl sm:text-2xl font-black text-neutral-950">₹{selectedPlan.price}</span>
+                </div>
+                <span className="px-3 py-1 rounded-full text-xs font-black bg-[#FF3358] text-white shadow-xs">
+                  {selectedPlan.days === 365 ? '1 Year Pro' : '30 Days Pass'}
                 </span>
               </div>
 
@@ -497,57 +787,30 @@ export default function PlansPage({ onNavigate }) {
                   <button
                     type="button"
                     onClick={handleCopyUpi}
-                    className="px-3 py-1.5 rounded-xl text-xs font-black bg-white border border-[#EAE3DB] text-neutral-900 hover:border-black transition-colors shrink-0 shadow-xs cursor-pointer active:scale-95"
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-black bg-white border border-[#EAE3DB] text-neutral-900 hover:border-black transition-colors shrink-0 shadow-xs cursor-pointer active:scale-95"
                   >
                     {copiedUpi ? 'Copied!' : 'Copy UPI'}
                   </button>
                 </div>
               </div>
 
-              {/* MANDATORY SCREENSHOT UPLOAD */}
-              <div>
-                <label className="block text-xs font-extrabold text-neutral-900 mb-1.5">
-                  Upload Payment Screenshot <span className="text-[#FF3358]">* (Mandatory)</span>
-                </label>
-                
-                <div className="relative border-2 border-dashed border-[#D8CFC5] hover:border-[#FF3358] rounded-2xl p-4 bg-[#FAF6F2] transition-colors text-center cursor-pointer">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    required
-                    onChange={handleFileChange}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                  
-                  {screenshotName ? (
-                    <div className="flex items-center justify-center gap-2 text-emerald-700 font-extrabold text-xs">
-                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <span className="truncate max-w-[200px] sm:max-w-[240px]">Attached: {screenshotName}</span>
-                      <span className="text-[10px] text-neutral-500 underline font-normal ml-1">Change</span>
-                    </div>
-                  ) : (
-                    <div className="space-y-1">
-                      <div className="w-8 h-8 mx-auto rounded-full bg-white border border-[#EAE3DB] flex items-center justify-center text-neutral-700">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect x="3" y="3" width="18" height="18" rx="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                      </div>
-                      <span className="text-xs font-extrabold text-neutral-900 block">
-                        Click or Drop Payment Screenshot Here
-                      </span>
-                      <span className="text-[10px] text-neutral-500 font-medium block">
-                        Upload receipt screenshot to verify & activate instantly
-                      </span>
-                    </div>
-                  )}
-                </div>
+              {/* HOW TO BUY SUBSCRIPTION LINK (Opens modal with steps) */}
+              <div className="flex items-center justify-start pt-0.5">
+                <button
+                  type="button"
+                  onClick={() => setShowHowToBuyModal(true)}
+                  className="inline-flex items-center gap-2 text-xs font-black text-neutral-700 hover:text-[#FF3358] transition-colors cursor-pointer group"
+                >
+                  <span className="w-5 h-5 rounded-full bg-neutral-200 group-hover:bg-rose-100 text-neutral-800 group-hover:text-[#FF3358] flex items-center justify-center text-[11px] font-black transition-colors">
+                    ?
+                  </span>
+                  <span className="underline decoration-dotted underline-offset-4">
+                    How To Buy Subscription? (Click for Steps)
+                  </span>
+                </button>
               </div>
 
-              {/* Error Message */}
+              {/* Error Message if guest / login needed */}
               {formError && (
                 <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold space-y-2">
                   <div className="flex items-center gap-2">
@@ -563,14 +826,14 @@ export default function PlansPage({ onNavigate }) {
                       <button
                         type="button"
                         onClick={() => onNavigate ? onNavigate('/login') : (window.location.hash = '#/login')}
-                        className="px-3 py-1 bg-white border border-rose-300 text-rose-900 rounded-lg text-xs font-extrabold hover:bg-rose-100"
+                        className="px-3 py-1 bg-white border border-rose-300 text-rose-900 rounded-lg text-xs font-extrabold hover:bg-rose-100 cursor-pointer"
                       >
                         Go to Log In →
                       </button>
                       <button
                         type="button"
                         onClick={() => onNavigate ? onNavigate('/signup') : (window.location.hash = '#/signup')}
-                        className="px-3 py-1 bg-[#FF3358] text-white rounded-lg text-xs font-extrabold hover:bg-[#FF1F48]"
+                        className="px-3 py-1 bg-[#FF3358] text-white rounded-lg text-xs font-extrabold hover:bg-[#FF1F48] cursor-pointer"
                       >
                         Create Free Account →
                       </button>
@@ -579,25 +842,21 @@ export default function PlansPage({ onNavigate }) {
                 </div>
               )}
 
-              {/* BIG "PAYMENT COMPLETE" CONFIRMATION BUTTON */}
+              {/* BIG "PAYMENT COMPLETE" CONFIRMATION BUTTON (Opens Mandatory Screenshot Modal) */}
               <div className="pt-1">
                 <button
                   type="button"
-                  onClick={handleCompletePayment}
-                  disabled={isProcessing}
+                  onClick={handleOpenScreenshotModal}
                   className="w-full py-4 px-6 rounded-2xl text-sm sm:text-base font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-xl transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
                 >
-                  {isProcessing ? (
-                    <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <span>Payment Complete (Activate Plan)</span>
-                    </>
-                  )}
+                  <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span>Payment Complete</span>
                 </button>
+                <span className="text-[11px] text-neutral-500 font-semibold mt-1.5 block text-center">
+                  Click to submit payment receipt screenshot & activate plan
+                </span>
               </div>
 
             </div>
