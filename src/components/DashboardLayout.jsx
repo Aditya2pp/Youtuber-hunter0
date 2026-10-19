@@ -24,6 +24,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
+  const [isAlertDismissed, setIsAlertDismissed] = useState(false);
   const [currentTheme, setCurrentTheme] = useState(() => getTheme());
 
   useEffect(() => {
@@ -458,9 +459,9 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
 
         {/* Content Viewport */}
         <main className="flex-1 p-3.5 sm:p-8 max-w-7xl w-full mx-auto">
-          {rejectionAlert && (
-            <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
-              <div className="flex items-start gap-3">
+          {rejectionAlert && !isAlertDismissed && (
+            <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-amber-50 border border-amber-300 text-amber-950 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs relative">
+              <div className="flex items-start gap-3 pr-8 sm:pr-0">
                 <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 border border-amber-300">
                   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="10" />
@@ -493,6 +494,14 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
                 >
                   Contact Telegram
                 </a>
+                <button
+                  type="button"
+                  onClick={() => setIsAlertDismissed(true)}
+                  className="w-7 h-7 rounded-lg text-amber-800 hover:text-black hover:bg-amber-200/50 flex items-center justify-center text-sm font-bold transition-colors cursor-pointer ml-1"
+                  title="Dismiss notice"
+                >
+                  ✕
+                </button>
               </div>
             </div>
           )}

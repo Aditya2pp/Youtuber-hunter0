@@ -65,24 +65,28 @@ export default function LandingPage({ onNavigate }) {
 
   const faqs = [
     {
-      q: 'How does YouTuber Finder help me get clients?',
-      a: 'We curate thousands of active YouTube creators with verified business emails and Instagram handles. You can filter by niche, subscriber count, and content category to pitch your video editing, thumbnail design, or brand sponsorship services directly.',
+      q: 'How does YouTuber Finder help thumbnail designers get clients?',
+      a: 'We curate thousands of active YouTube creators filtered by niche and exact subscriber brackets (1k to 200k+). You can shortlist target channels and instantly generate personalized Short DMs (Instagram, WhatsApp, X) and Cold Email pitches with 6 proven high-CTR angles.',
     },
     {
-      q: 'How does the free trial work?',
-      a: 'Every new account gets instant access to search our directory and view the first 5 channel profiles for free. You can upgrade anytime from just ₹30 for 30 days to unlock verified direct emails across all 10,000+ creators.',
+      q: 'What is included in the Pro Plans (₹30 / ₹299)?',
+      a: 'Pro gives you complete access: 100% Ad-Free experience (No Ads), Unlimited Personalized DM Generation, Unlimited Cold Email Generation, full 1,000+ creator directory access, unlimited channel shortlisting ("Save It"), and 6 high-converting pitch angles across 3 tone modes.',
     },
     {
-      q: 'Are the contact emails verified?',
-      a: 'Yes. We extract and verify official business inquiry inboxes from channel descriptions, verified social links, and agency representations to ensure minimal bounce rates.',
+      q: 'Do I have to offer free thumbnails in every pitch?',
+      a: 'Not at all! Our pitch generator features 6 distinct, fear-free angles. Only one offers a sample test concept, while the others focus on boosting mobile feed CTR, saving 4+ hours of creator editing time, constructive packaging audits, and channel brand authority so you can pitch confidently without fear of working for free.',
     },
     {
-      q: 'Can thumbnail designers and video editors use this?',
-      a: 'Absolutely! Our users include freelance video editors, thumbnail designers, thumbnail CTR specialists, and marketing agencies hunting for high-ticket creator retainers.',
+      q: 'How does the Shortlist & Pitch Generator work?',
+      a: 'Simply click "Save It" on any YouTuber in the directory. In your Saved section, tap on the channel and choose either "Short DM" or "Cold Email". You get a tailored pitch personalized with their channel name ready to copy and send in seconds.',
+    },
+    {
+      q: 'Why is there a 100% No Ads guarantee?',
+      a: 'We believe client acquisition requires deep focus and speed. In our Pro plans, there are zero banner ads, zero popups, and zero countdowns — just a fast, distraction-free tool to land client retainers.',
     },
     {
       q: 'How do I pay with UPI?',
-      a: 'Select the 30 Days plan (₹199 cut to just ₹30) and scan the instant UPI QR code or click "PAY BY ANY UPI APP" directly on your device. Upload your payment screenshot and click Payment Complete to activate your plan.',
+      a: 'Select either the 30 Days Pass (₹199 cut to ₹30) or 1 Year Pro (₹299). Scan the QR code or copy the official UPI ID with any UPI app (GPay, PhonePe, Paytm, BHIM), upload your payment screenshot, and click Payment Complete for instant activation.',
     },
   ];
 
@@ -321,7 +325,7 @@ export default function LandingPage({ onNavigate }) {
 
             {/* Short professional description */}
             <p className="text-base sm:text-lg text-neutral-600 font-medium max-w-xl leading-relaxed pt-1">
-              Find the right YouTubers, reach out, and grow your business with ease. Our tool helps video editors, thumbnail designers, and agencies discover active creators who are looking for sponsorships, collaborations, and client work.
+              Discover 1,000+ active YouTubers, shortlist target channels, and instantly generate high-converting DMs & cold emails tailored for YouTube Thumbnail Designers and packaging agencies. 100% Ad-Free with zero client brokerage.
             </p>
 
             {/* CTA BUTTON WITH 2.5D DEPTH */}
@@ -620,17 +624,17 @@ export default function LandingPage({ onNavigate }) {
                       <rect x="3" y="5" width="18" height="14" rx="2" />
                       <polyline points="3 7 12 13 21 7" />
                     </svg>
-                    <span>Direct Business Email available</span>
+                    <span>High-Converting Pitch Generator</span>
                   </div>
                 </div>
 
-                {/* Contact Red Button */}
+                {/* Pitch Red Button */}
                 <a
                   href="#/signup"
                   onClick={(e) => handleNavClick('/signup', e)}
                   className="block w-full py-2 rounded-xl text-center text-xs font-extrabold text-white bg-[#FF3358] hover:bg-[#FF1F48] shadow-md transition-colors"
                 >
-                  Contact
+                  Generate Pitch →
                 </a>
               </div>
 
@@ -777,9 +781,9 @@ export default function LandingPage({ onNavigate }) {
               <div className="w-12 h-12 rounded-2xl bg-[#0A0A0A] text-white font-extrabold text-base flex items-center justify-center mb-5 shadow-sm">
                 03
               </div>
-              <h3 className="text-lg font-extrabold text-neutral-950 mb-2">Pitch & Close Deal</h3>
+              <h3 className="text-lg font-extrabold text-neutral-950 mb-2">Pitch & Close Retainers</h3>
               <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed">
-                Unlock direct business inquiry emails and Instagram handles. Send sample thumbnails or sample edit cuts with 0% brokerage.
+                Generate tailored Short DMs and Cold Emails in seconds. Pitch with confidence focusing on boosting CTR and saving creator time with 0% brokerage.
               </p>
             </div>
           </div>
@@ -822,7 +826,7 @@ export default function LandingPage({ onNavigate }) {
               </div>
               <h3 className="text-lg font-extrabold text-neutral-950 mb-2">Thumbnail Designers</h3>
               <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed">
-                Spot channels with great content but low CTR thumbnails. Send mock revamp concepts straight to their verified business email.
+                Spot active creators with great content and send high-converting personalized pitches that showcase your ability to boost their click-through rate.
               </p>
             </div>
 
@@ -856,28 +860,28 @@ export default function LandingPage({ onNavigate }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
               {
-                title: 'Verified Business Emails',
-                desc: 'Direct inboxes parsed and validated for minimal bounces and maximum reply rates.',
+                title: 'No Ads (100% Ad-Free)',
+                desc: 'Distraction-free environment with zero banner ads or popups, letting you focus entirely on pitching clients.',
               },
               {
-                title: 'Granular Audience Sizing',
-                desc: 'Instant filtering from 1K to 1M+ subscribers to fit both budget startups and high-end retainers.',
+                title: 'Unlimited Cold Email Generator',
+                desc: 'Punchy subject lines and high-reply email copy personalized with the creator\'s channel name.',
               },
               {
-                title: 'Direct Instagram DMs',
-                desc: 'Jump directly to their official Instagram profile for secondary DM pitches.',
+                title: 'Unlimited Personalized DMs',
+                desc: 'Bite-sized, scroll-stopping outreach copy tailored for Instagram, WhatsApp, and X with 1-click copy.',
               },
               {
-                title: 'No Brokerage or Cuts',
-                desc: '100% of the contract value is yours. We never take any percentage of your client deals.',
+                title: '1,000+ Active YouTuber Directory',
+                desc: 'Granular filtering by niche (Tech, Gaming, Finance, Vlogs) and subscriber brackets from 1k+ to 200k+.',
               },
               {
-                title: 'Prospect Shortlist',
-                desc: 'Save and categorize your target creators with one click to keep your outreach organized.',
+                title: 'Fear-Free Pitch Angles',
+                desc: 'No working for free! Angles emphasize boosting the creator\'s CTR, saving 4+ hours, and channel authority.',
               },
               {
-                title: 'Pocket-Friendly Plans',
-                desc: 'No expensive recurring lock-ins. Simple UPI passes starting at only ₹30 for 30 days.',
+                title: 'Instant 6-Template Refresh',
+                desc: 'Cycle through 6 battle-tested angles across 3 tones (Professional, Direct, Portfolio) with 1 click.',
               },
             ].map((f, i) => (
               <div
@@ -907,7 +911,7 @@ export default function LandingPage({ onNavigate }) {
               One Client Pays for the Entire Year
             </h2>
             <p className="text-sm text-neutral-600 font-medium mt-2">
-              Start for free with 5 channels, or unlock all emails with our transparent passes.
+              Start for free with 5 channels, or unlock full access with our transparent UPI passes.
             </p>
           </div>
 
@@ -923,8 +927,8 @@ export default function LandingPage({ onNavigate }) {
                 </div>
                 <ul className="space-y-2 text-xs font-medium text-neutral-700 pt-3 border-t border-[#EAE3DB]">
                   <li className="flex items-center gap-2">✓ First 5 channel profiles</li>
-                  <li className="flex items-center gap-2">✓ Channel & Instagram links</li>
-                  <li className="flex items-center gap-2 text-neutral-400">✗ Emails locked</li>
+                  <li className="flex items-center gap-2">✓ Channel links & subscriber info</li>
+                  <li className="flex items-center gap-2 text-neutral-400">✗ Unlimited DMs & Cold Emails locked</li>
                   <li className="flex items-center gap-2 text-neutral-400">✗ Channels 6+ locked</li>
                 </ul>
               </div>
@@ -953,9 +957,12 @@ export default function LandingPage({ onNavigate }) {
                   <span className="text-xs font-semibold text-neutral-500">/ 30 days</span>
                 </div>
                 <ul className="space-y-2 text-xs font-medium text-neutral-700 pt-3 border-t border-rose-100">
-                  <li className="flex items-center gap-2 text-emerald-700 font-bold">✓ Unlocks all creator emails</li>
-                  <li className="flex items-center gap-2">✓ Verified Instagram handles</li>
-                  <li className="flex items-center gap-2">✓ Unlimited saved shortlist ("Save It")</li>
+                  <li className="flex items-center gap-2 text-emerald-700 font-bold">✓ 100% Ad-Free (No Ads)</li>
+                  <li className="flex items-center gap-2 text-emerald-700 font-bold">✓ Unlimited Cold Emails</li>
+                  <li className="flex items-center gap-2">✓ Unlimited Personalized DMs</li>
+                  <li className="flex items-center gap-2">✓ Full 1,000+ YouTubers Directory</li>
+                  <li className="flex items-center gap-2">✓ Unlimited Shortlists ("Save It")</li>
+                  <li className="flex items-center gap-2">✓ 6 Fear-Free Pitch Angles</li>
                   <li className="flex items-center gap-2">✓ Instant activation via UPI</li>
                 </ul>
               </div>
@@ -977,16 +984,17 @@ export default function LandingPage({ onNavigate }) {
               </div>
               <div>
                 <h3 className="text-lg font-extrabold text-neutral-950">1 Year Pro</h3>
-                <p className="text-xs text-neutral-500 font-medium mt-1">Full agency & editor suite</p>
+                <p className="text-xs text-neutral-500 font-medium mt-1">Full agency & designer suite</p>
                 <div className="my-5 flex items-baseline gap-1">
                   <span className="text-4xl font-black text-neutral-950">₹299</span>
                   <span className="text-xs font-semibold text-neutral-500">/ 365 days</span>
                 </div>
                 <ul className="space-y-2 text-xs font-medium text-neutral-700 pt-3 border-t border-neutral-200">
-                  <li className="flex items-center gap-2 text-emerald-700 font-bold">✓ Unlocks all creator emails</li>
-                  <li className="flex items-center gap-2">✓ Direct Instagram contacts</li>
-                  <li className="flex items-center gap-2">✓ Unlimited shortlists & exports</li>
-                  <li className="flex items-center gap-2">✓ Fresh weekly creator leads</li>
+                  <li className="flex items-center gap-2 text-emerald-700 font-bold">✓ Everything in 30 Days included</li>
+                  <li className="flex items-center gap-2 text-emerald-700 font-bold">✓ Full 365 Days Unlimited Access</li>
+                  <li className="flex items-center gap-2">✓ 100% Zero Ads & Distraction-Free</li>
+                  <li className="flex items-center gap-2">✓ Unlimited DMs & Cold Email Pitches</li>
+                  <li className="flex items-center gap-2">✓ Weekly Fresh Verified Leads</li>
                   <li className="flex items-center gap-2 font-bold text-rose-600">✓ Saves 83% vs monthly</li>
                 </ul>
               </div>
@@ -1048,10 +1056,10 @@ export default function LandingPage({ onNavigate }) {
               </div>
               <div className="space-y-1.5">
                 <h3 className="text-base sm:text-lg font-black text-neutral-950">
-                  2. Only Publicly Available Web Data is Organized
+                  2. Only Publicly Available Channel Data is Organized
                 </h3>
                 <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed">
-                  Our system does not scrape private information or personal phone numbers. <strong>We solely organize and present data that creators have already openly and publicly shared across the web</strong> — including public YouTube channel links, verified Instagram handles, and official business inquiry inboxes placed in channel descriptions.
+                  Our system does not scrape private information, personal phone numbers, or hidden data. <strong>We solely organize and present public information that creators have already openly shared on YouTube</strong> — including channel names, public channel links, content categories/niches, and public subscriber brackets.
                 </p>
               </div>
             </div>
@@ -1068,15 +1076,15 @@ export default function LandingPage({ onNavigate }) {
               </div>
               <div className="space-y-1.5">
                 <h3 className="text-base sm:text-lg font-black text-neutral-950">
-                  3. Mission: Helping Creators Land Brand Deals & Freelancers Find Work
+                  3. Mission: Helping Creators Land Retainers & Freelancers Find Work
                 </h3>
                 <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed">
-                  The primary purpose of YouTuber Finder is to foster genuine, productive relationships: <strong>helping YouTubers receive sponsorships and brand collaborations, while empowering talented freelancers (video editors, thumbnail designers, sound artists, and agencies)</strong> to find meaningful work and build long-term retainers.
+                  The primary purpose of YouTuber Finder is to foster genuine, productive relationships: <strong>empowering talented thumbnail designers and packaging artists</strong> to pitch active creators confidently with high-CTR angles and land consistent monthly retainers.
                 </p>
               </div>
             </div>
 
-            {/* 4. Business Emails & Removal Guarantee */}
+            {/* 4. Public Directory & Creator Removal Guarantee */}
             <div className="flex items-start gap-4">
               <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#FF3358] border border-rose-100 flex items-center justify-center shrink-0 font-extrabold">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -1086,10 +1094,10 @@ export default function LandingPage({ onNavigate }) {
               </div>
               <div className="space-y-1.5">
                 <h3 className="text-base sm:text-lg font-black text-neutral-950">
-                  4. Official Business Emails Only & Creator Removal
+                  4. Public Channel Directory & Creator Removal Guarantee
                 </h3>
                 <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed">
-                  Emails provided are designated strictly as <strong>Business Emails</strong> meant for professional correspondence. If you are a creator and wish to have your public channel removed from our directory, simply contact our Telegram support at <a href="https://t.me/Pixel_Craft0" target="_blank" rel="noopener noreferrer" className="text-neutral-900 underline font-bold hover:text-[#229ED9]">t.me/Pixel_Craft0 (@Pixel_Craft0)</a> and we will delete your listing immediately with zero questions asked.
+                  Our directory organizes public YouTube channels for discovery and professional outreach. If you are a creator and wish to have your public channel listing removed from our directory, simply reach out to our Telegram support at <a href="https://t.me/Pixel_Craft0" target="_blank" rel="noopener noreferrer" className="text-neutral-900 underline font-bold hover:text-[#229ED9]">t.me/Pixel_Craft0 (@Pixel_Craft0)</a> and we will delete your listing immediately with zero questions asked.
                 </p>
               </div>
             </div>

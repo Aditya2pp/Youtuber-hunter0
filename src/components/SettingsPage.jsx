@@ -92,7 +92,7 @@ export default function SettingsPage({ onNavigate }) {
         {!userIsPaid && (
           <div className="mt-6 pt-6 border-t border-[#F0EAE3] flex items-center justify-between gap-3">
             <span className="text-xs text-neutral-500 font-medium">
-              Want access to all creator business emails?
+              Want 100% Ad-Free, Unlimited DMs & Cold Emails, and 1,000+ Creator Directory?
             </span>
             <button
               onClick={() => onNavigate && onNavigate('/dashboard/plans')}
@@ -134,19 +134,19 @@ export default function SettingsPage({ onNavigate }) {
 
           <div className="p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
             <h4 className="font-extrabold text-neutral-950 mb-1">
-              2. Only Publicly Published Web Data is Organized
+              2. Only Publicly Published Channel Data is Organized
             </h4>
             <p>
-              This platform only indexes and organizes information that creators themselves have already made publicly accessible across the web — such as public channel links, official social media usernames, and publicly stated business contact emails from YouTube channel "About" sections. We do not uncover hidden or private phone numbers, home addresses, or private accounts.
+              This platform only indexes and organizes information that creators themselves have already made publicly accessible across YouTube — such as public channel names, links, niches, and approximate subscriber brackets. We do not uncover hidden or private phone numbers, home addresses, or private accounts.
             </p>
           </div>
 
           <div className="p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
             <h4 className="font-extrabold text-neutral-950 mb-1">
-              3. Purpose: Helping Creators Get Deals & Freelancers Find Work
+              3. Purpose: Helping Thumbnail Designers Land Retainers
             </h4>
             <p>
-              The core mission of our tool is to build genuine professional opportunities. We help YouTube creators discover sponsorships, brand partnerships, and connect with talented creative freelancers — such as video editors, thumbnail artists, motion designers, and marketing agencies who can help their channels scale.
+              The core mission of our tool is to build genuine professional opportunities. We empower talented thumbnail designers and packaging artists to reach out with high-CTR, value-first pitches to active creators and build long-term retainer partnerships.
             </p>
           </div>
 
@@ -155,7 +155,7 @@ export default function SettingsPage({ onNavigate }) {
               4. Inquiries, Creator Removal & Official Support
             </h4>
             <p>
-              All email addresses indexed on this platform are public business emails for professional correspondence. For assistance, questions, or removal requests, contact our official Telegram support directly at{' '}
+              Our directory organizes publicly available YouTube channel links. For assistance, questions, or creator removal requests, contact our official Telegram support directly at{' '}
               <a
                 href="https://t.me/Pixel_Craft0"
                 target="_blank"

@@ -552,13 +552,21 @@ html.dark body,
   }
 }
 
-/* Initial unrevealed state for elements awaiting scroll */
-html.js-ready .reveal:not(.revealed):not(.is-revealed),
-html.js-ready [data-reveal]:not([data-reveal="none"]):not(.revealed):not(.is-revealed),
-html.js-ready .reveal-pop:not(.revealed):not(.is-revealed) {
+/* Initial unrevealed state for elements awaiting scroll (Landing page only) */
+html.js-ready .landing-page .reveal:not(.revealed):not(.is-revealed),
+html.js-ready .landing-page [data-reveal]:not([data-reveal="none"]):not(.revealed):not(.is-revealed),
+html.js-ready .landing-page .reveal-pop:not(.revealed):not(.is-revealed) {
   opacity: 0;
   visibility: hidden;
   will-change: opacity, transform;
+}
+
+/* Safety: Dashboard content and cards must NEVER be hidden */
+main .reveal,
+main [data-reveal],
+main .card-hover-lift {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* Active Glide-In Animations (Fires once per element, smoothly and on time) */

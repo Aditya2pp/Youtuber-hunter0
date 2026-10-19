@@ -139,11 +139,11 @@ export default function FindPage({ onNavigate }) {
                 <svg className="w-3.5 h-3.5 text-emerald-600 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
-                <span>Pro Hunter: All direct creator inquiry emails & Instagram handles unlocked.</span>
+                <span>Pro Member: 100% Ad-Free, Unlimited YouTuber Directory & Pitch Generator Unlocked!</span>
               </span>
             ) : (
               <span>
-                Free tier: First 5 channels visible, emails locked. Unlock all leads for only ₹30.
+                Free tier: First 5 channels visible. Unlock 1,000+ creators, No Ads & unlimited pitch generator for only ₹30.
               </span>
             )}
           </p>

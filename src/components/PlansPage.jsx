@@ -153,7 +153,7 @@ export default function PlansPage({ onNavigate }) {
     setScreenshotModalError('');
 
     if (!screenshotData) {
-      setScreenshotModalError('⚠️ Payment screenshot is mandatory! Please upload your payment receipt before submitting.');
+      setScreenshotModalError('Payment screenshot is mandatory. Please upload your payment receipt before submitting.');
       return;
     }
 
@@ -190,23 +190,27 @@ export default function PlansPage({ onNavigate }) {
     : `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(UPI_NAME)}&am=30&cu=INR&tn=YF-30Days`;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* ========================================================
           HOW TO BUY SUBSCRIPTION MODAL (STEP-BY-STEP POPUP)
          ======================================================== */}
       {showHowToBuyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-lg bg-white rounded-[32px] p-6 sm:p-8 shadow-2xl border-2 border-neutral-900 overflow-hidden transform animate-scaleUp text-left">
-            <div className="flex items-center justify-between pb-4 border-b border-[#F0EAE3] mb-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-2xl border-2 border-neutral-900 text-left">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F0EAE3] mb-4 sm:mb-5">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#FF3358] border border-rose-200 flex items-center justify-center font-black text-lg">
-                  💡
+                <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#FF3358] border border-rose-200 flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-[#FF3358]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 18h6" />
+                    <path d="M10 22h4" />
+                    <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z" />
+                  </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg sm:text-xl font-black text-neutral-950">
+                  <h3 className="text-base sm:text-lg font-black text-neutral-950">
                     How To Buy Subscription
                   </h3>
-                  <p className="text-xs text-neutral-500 font-medium">
+                  <p className="text-[11px] sm:text-xs text-neutral-500 font-medium">
                     Follow these 4 simple steps to activate your plan:
                   </p>
                 </div>
@@ -214,10 +218,13 @@ export default function PlansPage({ onNavigate }) {
               <button
                 type="button"
                 onClick={() => setShowHowToBuyModal(false)}
-                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors"
+                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors shrink-0"
                 title="Close"
               >
-                ✕
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 
@@ -300,14 +307,14 @@ export default function PlansPage({ onNavigate }) {
           MANDATORY SCREENSHOT SUBMISSION POPUP MODAL
          ======================================================== */}
       {showScreenshotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-md bg-white rounded-[32px] p-6 sm:p-8 shadow-2xl border-2 border-neutral-900 overflow-hidden transform animate-scaleUp text-left">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-2xl border-2 border-neutral-900 text-left">
             <div className="flex items-center justify-between pb-4 border-b border-[#F0EAE3] mb-4">
               <div>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 inline-block mb-1">
                   Mandatory Verification
                 </span>
-                <h3 className="text-lg sm:text-xl font-black text-neutral-950">
+                <h3 className="text-base sm:text-xl font-black text-neutral-950">
                   Submit Payment Screenshot
                 </h3>
                 <p className="text-xs text-neutral-500 font-medium">
@@ -317,10 +324,13 @@ export default function PlansPage({ onNavigate }) {
               <button
                 type="button"
                 onClick={() => setShowScreenshotModal(false)}
-                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors"
+                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors shrink-0"
                 title="Cancel"
               >
-                ✕
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 
@@ -449,7 +459,7 @@ export default function PlansPage({ onNavigate }) {
             </h3>
 
             <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed mb-6">
-              Congratulations! Your <strong className="text-neutral-900">{selectedPlan.name}</strong> is now live. All verified creator emails and contacts are unlocked.
+              Congratulations! Your <strong className="text-neutral-900">{selectedPlan?.name || 'Pro Plan'}</strong> is now live. 100% Ad-Free access, Unlimited DM & Cold Email generation, and all 1,000+ creator directories are fully unlocked!
             </p>
 
             <button
@@ -503,13 +513,13 @@ export default function PlansPage({ onNavigate }) {
                   <strong className="text-neutral-900">
                     {currentPlan.expiresAt ? new Date(currentPlan.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Active'}
                   </strong>
-                  {' '}· All 10,000+ creator business emails unlocked.
+                  {' '}· 100% Ad-Free, Unlimited DMs & Cold Emails, 1,000+ Creators Unlocked.
                 </p>
               </div>
             </div>
 
             <div className="self-start sm:self-center">
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${hasActiveAnnualPlan ? 'bg-neutral-900 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black ${hasActiveAnnualPlan ? 'bg-neutral-950 text-white' : 'bg-emerald-100 text-emerald-800'}`}>
                 {hasActiveAnnualPlan ? (
                   <>
                     <svg className="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="currentColor">
@@ -537,7 +547,7 @@ export default function PlansPage({ onNavigate }) {
                 <path d="M12 8h.01" />
               </svg>
               <span>
-                <strong className="text-neutral-950">1 Year Pro Active:</strong> You have unlimited access to all creator directories and verified contacts until expiration.
+                <strong className="text-neutral-950">1 Year Pro Active:</strong> You have unlimited access to all 1,000+ creator directories and unlimited outreach generators until expiration.
               </span>
             </div>
           )}
@@ -547,14 +557,14 @@ export default function PlansPage({ onNavigate }) {
       {/* ========================================================
           PLANS HEADER
          ======================================================== */}
-      <div data-reveal="up">
+      <div>
         <h2 className="text-2xl sm:text-3xl font-black text-neutral-950 tracking-tight">
           Choose Your Plan
         </h2>
         <p className="text-xs sm:text-sm text-neutral-600 font-medium mt-1">
           {hasActiveAnnualPlan 
-            ? 'Your 1 Year Pro plan is currently active with full unlocked creator directory access.'
-            : 'Select a plan below to reveal instant UPI payment options and unlock all creator emails.'}
+            ? 'Your 1 Year Pro plan is currently active with full unlocked creator directory and pitch generator access.'
+            : 'Select a plan below for instant UPI payment: 100% Ad-Free, Unlimited DMs & Cold Emails, and 1,000+ Creator Leads.'}
         </p>
       </div>
 
@@ -686,6 +696,138 @@ export default function PlansPage({ onNavigate }) {
             </div>
           );
         })}
+      </div>
+
+      {/* ========================================================
+          GEM-LIKE PRO BENEFITS GRID (Why Pro Members Love It)
+         ======================================================== */}
+      <div className="max-w-4xl p-4 sm:p-7 rounded-3xl bg-white border-2 border-neutral-900 shadow-md space-y-4 sm:space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#F0EAE3]">
+          <div>
+            <span className="text-[10px] font-black uppercase tracking-wider text-[#FF3358] flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-[#FF3358] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+              </svg>
+              <span>Exclusive Advantage For Thumbnail Designers</span>
+            </span>
+            <h3 className="text-base sm:text-xl font-black text-neutral-950 mt-0.5">
+              Pro Member Benefits (Included in All Paid Plans)
+            </h3>
+          </div>
+          <span className="self-start sm:self-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 shrink-0">
+            Instant UPI Unlock
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5">
+          {/* Gem 1: 100% Ad-Free (No Ads) */}
+          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
+            <div className="w-9 h-9 rounded-xl bg-white text-[#FF3358] border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
+              <svg className="w-5 h-5 text-[#FF3358]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-neutral-950">
+                No Ads (100% Ad-Free)
+              </h4>
+              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
+                Zero banner ads, zero annoying countdowns. Pure distraction-free focus on landing high-paying creator clients.
+              </p>
+            </div>
+          </div>
+
+          {/* Gem 2: Unlimited Cold Emails Generation */}
+          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
+            <div className="w-9 h-9 rounded-xl bg-white text-indigo-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
+              <svg className="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-neutral-950">
+                Unlimited Cold Emails
+              </h4>
+              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
+                High-converting email copy with punchy subject lines and proven hooks personalized with the YouTuber's channel name.
+              </p>
+            </div>
+          </div>
+
+          {/* Gem 3: Unlimited Personalized DM Generator */}
+          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
+            <div className="w-9 h-9 rounded-xl bg-white text-emerald-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
+              <svg className="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-neutral-950">
+                Unlimited Personalized DMs
+              </h4>
+              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
+                Generate tailored, scroll-stopping DMs for Instagram, WhatsApp, and X with 1-click copy ready to send in seconds.
+              </p>
+            </div>
+          </div>
+
+          {/* Gem 4: 1,000+ Unlimited YouTuber List */}
+          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
+            <div className="w-9 h-9 rounded-xl bg-white text-amber-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
+              <svg className="w-5 h-5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-neutral-950">
+                Unlimited YouTuber List
+              </h4>
+              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
+                Curated directory of 1,000+ active creators across Tech, Gaming, Finance, Vlogs, and Education from 1k+ to 200k+ subs.
+              </p>
+            </div>
+          </div>
+
+          {/* Gem 5: Fear-Free Pitch Angles (No Free Work) */}
+          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
+            <div className="w-9 h-9 rounded-xl bg-white text-purple-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
+              <svg className="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <polyline points="9 12 11 14 15 10" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-neutral-950">
+                Fear-Free Pitch Angles
+              </h4>
+              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
+                No need to work for free! Angles emphasize boosting the creator's CTR, saving 4+ hours of editing time, and branding authority.
+              </p>
+            </div>
+          </div>
+
+          {/* Gem 6: Instant 6-Template Refresh & 3 Tones */}
+          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
+            <div className="w-9 h-9 rounded-xl bg-white text-rose-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
+              <svg className="w-5 h-5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 4 23 10 17 10" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-neutral-950">
+                6 Angles & 3 Tones Refresh
+              </h4>
+              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
+                Toggle between Professional, Direct Approach, or With Portfolio, and tap Refresh to instantly cycle through 6 high-reply templates.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ========================================================
