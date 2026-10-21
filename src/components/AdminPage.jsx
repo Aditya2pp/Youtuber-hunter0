@@ -12,6 +12,7 @@ import {
   adminApprovePayment,
   adminRejectPayment,
   adminSetPlan,
+  adminDeleteUser,
   adminSendPasswordReset,
   adminGetCreatorsList,
   adminSaveCreator,
@@ -100,6 +101,7 @@ export default function AdminPage({ onNavigate }) {
   const [usersList, setUsersList] = useState([]);
   const [userSearch, setUserSearch] = useState('');
   const [userPlanModal, setUserPlanModal] = useState(null); // { user, days }
+  const [deleteUserConfirm, setDeleteUserConfirm] = useState(null); // user object to delete
 
   // Payments Tab
   const [paymentsList, setPaymentsList] = useState([]);
@@ -290,6 +292,28 @@ export default function AdminPage({ onNavigate }) {
       refreshStats();
     } catch (e) {
       showNotification(e.message || 'Failed to update user plan', true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userToDelete) => {
+    if (!userToDelete || !userToDelete.id) return;
+    try {
+      setLoading(true);
+      await adminDeleteUser(userToDelete.id, userToDelete.email);
+      showNotification(`User @${userToDelete.username || 'user'} and all associated data deleted permanently.`);
+      setDeleteUserConfirm(null);
+      const list = await adminGetUsers(userSearch);
+      setUsersList(list);
+      // Also refresh payments tab if payments were loaded
+      try {
+        const payList = await adminGetPayments(paymentFilter);
+        setPaymentsList(payList);
+      } catch {}
+      refreshStats();
+    } catch (err) {
+      showNotification(err.message || 'Failed to delete user.', true);
     } finally {
       setLoading(false);
     }
@@ -1331,12 +1355,31 @@ export default function AdminPage({ onNavigate }) {
 
                             {/* Action Dropdown / Button */}
                             <td className="py-3 px-4 text-right">
-                              <button
-                                onClick={() => setUserPlanModal(u)}
-                                className="px-3 py-1.5 bg-white hover:bg-neutral-50 border border-[#EAE3DB] rounded-xl text-xs font-bold text-neutral-800 transition-all shadow-xs cursor-pointer"
-                              >
-                                Modify Plan ▾
-                              </button>
+                              <div className="flex items-center justify-end gap-2">
+                                <button
+                                  onClick={() => setUserPlanModal(u)}
+                                  className="px-3 py-1.5 bg-white hover:bg-neutral-50 border border-[#EAE3DB] rounded-xl text-xs font-bold text-neutral-800 transition-all shadow-xs cursor-pointer"
+                                >
+                                  Modify Plan ▾
+                                </button>
+                                {!u.is_admin ? (
+                                  <button
+                                    onClick={() => setDeleteUserConfirm(u)}
+                                    className="px-2.5 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 hover:text-rose-800 border border-rose-200 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1"
+                                    title={`Delete @${u.username} and all data`}
+                                  >
+                                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                      <polyline points="3 6 5 6 21 6" />
+                                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                    <span>Delete</span>
+                                  </button>
+                                ) : (
+                                  <span className="px-2 py-1 text-[11px] font-semibold text-neutral-400 bg-neutral-100 rounded-lg select-none">
+                                    Protected
+                                  </span>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         );
@@ -1678,6 +1721,74 @@ export default function AdminPage({ onNavigate }) {
                 className="px-4 py-2 bg-neutral-100 text-neutral-700 rounded-xl text-xs font-bold hover:bg-neutral-200 cursor-pointer"
               >
                 Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =============================================================== */}
+      {/* MODAL 2B: DELETE USER CONFIRMATION */}
+      {/* =============================================================== */}
+      {deleteUserConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-[#EAE3DB] text-center">
+            <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+              <svg className="w-6 h-6 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+            </div>
+            <h3 className="text-base font-extrabold text-neutral-900 mb-1">
+              Delete User Account?
+            </h3>
+            <p className="text-xs text-neutral-600 mb-4">
+              Are you sure you want to permanently delete user <strong className="text-neutral-900">@{deleteUserConfirm.username}</strong> ({deleteUserConfirm.email})?
+            </p>
+
+            <div className="bg-rose-50/80 border border-rose-200/80 rounded-2xl p-3.5 mb-5 text-left text-xs text-rose-900 space-y-1.5">
+              <div className="font-bold text-rose-900 flex items-center gap-1.5">
+                <span>⚠️</span> This action will permanently remove:
+              </div>
+              <ul className="list-disc list-inside space-y-1 text-rose-800 text-[11px] leading-relaxed">
+                <li>User profile &amp; credentials from database</li>
+                <li>All payment history &amp; uploaded payment receipts/screenshots from Supabase storage</li>
+                <li>User saved creators shortlist</li>
+                <li>Auth record from Supabase &amp; Admin Panel</li>
+              </ul>
+              <div className="text-[10px] text-rose-600 font-semibold pt-1">
+                This cannot be undone.
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setDeleteUserConfirm(null)}
+                disabled={loading}
+                className="flex-1 py-2.5 bg-neutral-100 text-neutral-700 rounded-xl text-xs font-bold hover:bg-neutral-200 cursor-pointer disabled:opacity-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDeleteUser(deleteUserConfirm)}
+                disabled={loading}
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-md shadow-rose-600/20 transition-all"
+              >
+                {loading ? (
+                  <span>Deleting User...</span>
+                ) : (
+                  <>
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                    <span>Delete User</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

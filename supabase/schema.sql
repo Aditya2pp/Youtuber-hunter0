@@ -790,6 +790,126 @@ END;
 $$;
 GRANT EXECUTE ON FUNCTION public.admin_master_set_plan(uuid, int, text) TO anon, authenticated;
 
+-- Master Delete User (Deletes user profile, auth account, payments, saved creators, and storage screenshots)
+CREATE OR REPLACE FUNCTION public.admin_master_delete_user(p_user_id text, p_key text DEFAULT '#/admin-011@Raja')
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_uuid uuid;
+  v_user_email text;
+  v_user_name text;
+  v_screenshots text[];
+  v_deleted_payments int := 0;
+BEGIN
+  IF NOT (public.is_admin() OR p_key = '#/admin-011@Raja') THEN
+    RAISE EXCEPTION 'Access denied. Admin privileges required.';
+  END IF;
+
+  -- 1. Try to parse p_user_id as UUID
+  IF p_user_id IS NOT NULL AND p_user_id ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' THEN
+    BEGIN
+      v_uuid := p_user_id::uuid;
+    EXCEPTION WHEN OTHERS THEN
+      v_uuid := NULL;
+    END;
+  END IF;
+
+  -- 2. Lookup profile/email/username
+  IF v_uuid IS NOT NULL THEN
+    SELECT email, username INTO v_user_email, v_user_name FROM public.profiles WHERE id = v_uuid;
+  ELSE
+    SELECT id, email, username INTO v_uuid, v_user_email, v_user_name
+    FROM public.profiles
+    WHERE lower(email) = lower(trim(p_user_id)) OR lower(username) = lower(trim(p_user_id))
+    LIMIT 1;
+  END IF;
+
+  -- Check auth.users if still not found
+  IF v_uuid IS NULL AND p_user_id ~* '@' THEN
+    SELECT id, email INTO v_uuid, v_user_email FROM auth.users WHERE lower(email) = lower(trim(p_user_id)) LIMIT 1;
+  END IF;
+
+  -- Never allow deleting the Master Admin
+  IF lower(coalesce(v_user_email, '')) IN ('adminraja@hunter.internal', 'adminraja@youtuberhunter.internal')
+     OR lower(coalesce(v_user_name, '')) = 'adminraja@' THEN
+    RAISE EXCEPTION 'Master Admin account cannot be deleted.';
+  END IF;
+
+  -- 3. Collect screenshot paths to clean up
+  IF v_uuid IS NOT NULL THEN
+    SELECT array_agg(screenshot_path) INTO v_screenshots
+    FROM public.payments
+    WHERE user_id = v_uuid;
+
+    -- Delete payments
+    DELETE FROM public.payments WHERE user_id = v_uuid;
+    GET DIAGNOSTICS v_deleted_payments = ROW_COUNT;
+
+    -- Delete saved creators
+    DELETE FROM public.saved_creators WHERE user_id = v_uuid;
+
+    -- Delete storage screenshots if any
+    BEGIN
+      DELETE FROM storage.objects
+      WHERE bucket_id = 'screenshots'
+        AND (
+          name = ANY(v_screenshots)
+          OR owner = v_uuid
+          OR name LIKE (v_uuid::text || '/%')
+          OR name LIKE ('%' || v_uuid::text || '%')
+        );
+    EXCEPTION WHEN OTHERS THEN
+      NULL;
+    END;
+
+    -- Delete profile
+    DELETE FROM public.profiles WHERE id = v_uuid;
+
+    -- Delete from auth.users
+    BEGIN
+      DELETE FROM auth.users WHERE id = v_uuid;
+    EXCEPTION WHEN OTHERS THEN
+      NULL;
+    END;
+  END IF;
+
+  -- Also cleanup if matching email remains
+  IF v_user_email IS NOT NULL AND trim(v_user_email) <> '' THEN
+    DELETE FROM public.payments WHERE user_id IN (SELECT id FROM public.profiles WHERE lower(email) = lower(trim(v_user_email)));
+    DELETE FROM public.saved_creators WHERE user_id IN (SELECT id FROM public.profiles WHERE lower(email) = lower(trim(v_user_email)));
+    DELETE FROM public.profiles WHERE lower(email) = lower(trim(v_user_email));
+    BEGIN
+      DELETE FROM auth.users WHERE lower(email) = lower(trim(v_user_email));
+    EXCEPTION WHEN OTHERS THEN
+      NULL;
+    END;
+  END IF;
+
+  RETURN json_build_object(
+    'success', true,
+    'deleted_user_id', v_uuid,
+    'deleted_email', v_user_email,
+    'deleted_payments_count', v_deleted_payments
+  );
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.admin_master_delete_user(text, text) TO anon, authenticated;
+
+CREATE OR REPLACE FUNCTION public.admin_delete_user(p_user_id uuid)
+RETURNS json
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  RETURN public.admin_master_delete_user(p_user_id::text, '#/admin-011@Raja');
+END;
+$$;
+GRANT EXECUTE ON FUNCTION public.admin_delete_user(uuid) TO anon, authenticated;
+
 -- USER PAYMENT REGISTRATION (Resilient to non-UUID strings & automatic plan activation)
 CREATE OR REPLACE FUNCTION public.register_payment(
   p_user_id text,
