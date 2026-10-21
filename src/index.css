@@ -552,6 +552,21 @@ html.dark body,
   }
 }
 
+@keyframes bottomSheetSlideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-bottom-sheet {
+  animation: bottomSheetSlideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Initial unrevealed state for elements awaiting scroll (Landing page only) */
 html.js-ready .landing-page .reveal:not(.revealed):not(.is-revealed),
 html.js-ready .landing-page [data-reveal]:not([data-reveal="none"]):not(.revealed):not(.is-revealed),

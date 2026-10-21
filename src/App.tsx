@@ -17,6 +17,7 @@ import FindPage from './components/FindPage.jsx';
 import SavedPage from './components/SavedPage.jsx';
 import PlansPage from './components/PlansPage.jsx';
 import SettingsPage from './components/SettingsPage.jsx';
+import ThumbnailDownloaderPage from './components/ThumbnailDownloaderPage.jsx';
 import AdminPage from './components/AdminPage.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { initScrollReveal } from '../lib/scrollReveal.js';
@@ -204,6 +205,15 @@ export default function App() {
           <DashboardLayout activeMenu="plans" onNavigate={navigate}>
             <div key="plans" className="scene-view-transition w-full">
               <PlansPage onNavigate={navigate} />
+            </div>
+          </DashboardLayout>
+        );
+      }
+      if (currentPath === '/dashboard/downloader') {
+        return (
+          <DashboardLayout activeMenu="downloader" onNavigate={navigate}>
+            <div key="downloader" className="scene-view-transition w-full">
+              <ThumbnailDownloaderPage onNavigate={navigate} />
             </div>
           </DashboardLayout>
         );

@@ -137,6 +137,17 @@ export default function PlansPage({ onNavigate }) {
     }
   };
 
+  useEffect(() => {
+    if (showHowToBuyModal || showScreenshotModal || showSuccessModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [showHowToBuyModal, showScreenshotModal, showSuccessModal]);
+
   const handleOpenScreenshotModal = () => {
     setFormError('');
     setScreenshotModalError('');
@@ -146,6 +157,10 @@ export default function PlansPage({ onNavigate }) {
       return;
     }
     setShowScreenshotModal(true);
+  };
+
+  const handleOpenHowToBuy = () => {
+    setShowHowToBuyModal(true);
   };
 
   const handleConfirmDone = async (e) => {
@@ -192,227 +207,241 @@ export default function PlansPage({ onNavigate }) {
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* ========================================================
-          HOW TO BUY SUBSCRIPTION MODAL (STEP-BY-STEP POPUP)
+          HOW TO BUY SUBSCRIPTION MODAL (FIXED BOTTOM SHEET POPUP)
          ======================================================== */}
       {showHowToBuyModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-white rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-2xl border-2 border-neutral-900 text-left">
-            <div className="flex items-center justify-between pb-4 border-b border-[#F0EAE3] mb-4 sm:mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-rose-50 text-[#FF3358] border border-rose-200 flex items-center justify-center shrink-0">
-                  <svg className="w-5 h-5 text-[#FF3358]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <div
+          onClick={() => setShowHowToBuyModal(false)}
+          className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:pb-3 sm:px-4 bg-black/60 backdrop-blur-xs animate-fadeIn"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-lg bg-white rounded-t-[28px] sm:rounded-[28px] p-4 sm:p-5 shadow-2xl border-t-2 sm:border-2 border-neutral-900 text-left animate-bottom-sheet overflow-hidden select-none"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-[#F0EAE3]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-rose-50 text-[#FF3358] border border-rose-200 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-[#FF3358]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M9 18h6" />
                     <path d="M10 22h4" />
                     <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-black text-neutral-950">
+                  <h3 className="text-sm sm:text-base font-black text-neutral-950 leading-tight">
                     How To Buy Subscription
                   </h3>
-                  <p className="text-[11px] sm:text-xs text-neutral-500 font-medium">
-                    Follow these 4 simple steps to activate your plan:
+                  <p className="text-[11px] text-neutral-500 font-medium leading-tight">
+                    4 quick steps to activate your plan:
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowHowToBuyModal(false)}
-                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors shrink-0"
+                className="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-xs cursor-pointer transition-colors shrink-0"
                 title="Close"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
 
-            <div className="space-y-3.5">
+            {/* 4 Compact Step Cards (Fixed non-scrollable 2x2 grid) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-3">
               {/* Step 1 */}
-              <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
-                <div className="w-7 h-7 rounded-xl bg-neutral-950 text-white font-black text-xs flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#FAF6F2] border border-[#EAE3DB]">
+                <div className="w-5 h-5 rounded-md bg-neutral-950 text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                   1
                 </div>
-                <div className="text-xs">
-                  <strong className="block font-black text-neutral-950 text-sm mb-0.5">
-                    Scan or Download QR Code
+                <div className="min-w-0">
+                  <strong className="block font-black text-neutral-950 text-xs mb-0.5">
+                    Scan or Download QR
                   </strong>
-                  <p className="text-neutral-600 font-medium leading-relaxed">
-                    Screen par dikh rahe QR scanner ko scan karein, ya <strong>"Download QR Code"</strong> button par click karke scanner image apne phone/PC me save kar lein.
+                  <p className="text-[11px] text-neutral-600 font-medium leading-tight">
+                    Scan QR code on screen or tap "Download QR Code".
                   </p>
                 </div>
               </div>
 
               {/* Step 2 */}
-              <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
-                <div className="w-7 h-7 rounded-xl bg-neutral-950 text-white font-black text-xs flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#FAF6F2] border border-[#EAE3DB]">
+                <div className="w-5 h-5 rounded-md bg-neutral-950 text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                   2
                 </div>
-                <div className="text-xs">
-                  <strong className="block font-black text-neutral-950 text-sm mb-0.5">
+                <div className="min-w-0">
+                  <strong className="block font-black text-neutral-950 text-xs mb-0.5">
                     Pay via Any UPI App
                   </strong>
-                  <p className="text-neutral-600 font-medium leading-relaxed">
-                    Apne kisi bhi UPI app (Google Pay, PhonePe, Paytm, CRED, BHIM) me QR scanner upload karein ya Official UPI ID <code className="bg-white px-1.5 py-0.5 rounded border border-[#EAE3DB] font-mono font-bold text-neutral-900">{UPI_ID}</code> par exact ₹{selectedPlan?.price || '30'} pay karein.
+                  <p className="text-[11px] text-neutral-600 font-medium leading-tight truncate">
+                    Pay ₹{selectedPlan?.price || '30'} to <span className="font-mono font-bold text-neutral-900">{UPI_ID}</span>.
                   </p>
                 </div>
               </div>
 
               {/* Step 3 */}
-              <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB]">
-                <div className="w-7 h-7 rounded-xl bg-neutral-950 text-white font-black text-xs flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-[#FAF6F2] border border-[#EAE3DB]">
+                <div className="w-5 h-5 rounded-md bg-neutral-950 text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                   3
                 </div>
-                <div className="text-xs">
-                  <strong className="block font-black text-neutral-950 text-sm mb-0.5">
-                    Take Payment Screenshot
+                <div className="min-w-0">
+                  <strong className="block font-black text-neutral-950 text-xs mb-0.5">
+                    Take Screenshot
                   </strong>
-                  <p className="text-neutral-600 font-medium leading-relaxed">
-                    Payment successful hone par payment confirmation receipt ka ek clear screenshot le lein.
+                  <p className="text-[11px] text-neutral-600 font-medium leading-tight">
+                    Capture payment confirmation receipt screenshot.
                   </p>
                 </div>
               </div>
 
               {/* Step 4 */}
-              <div className="flex items-start gap-3.5 p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200">
-                <div className="w-7 h-7 rounded-xl bg-[#FF3358] text-white font-black text-xs flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-2.5 p-2.5 rounded-xl bg-rose-50/70 border border-rose-200">
+                <div className="w-5 h-5 rounded-md bg-[#FF3358] text-white font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                   4
                 </div>
-                <div className="text-xs">
-                  <strong className="block font-black text-neutral-950 text-sm mb-0.5">
-                    Click "Payment Complete" & Submit
+                <div className="min-w-0">
+                  <strong className="block font-black text-neutral-950 text-xs mb-0.5">
+                    Submit & Activate
                   </strong>
-                  <p className="text-neutral-600 font-medium leading-relaxed">
-                    Niche <strong>"Payment Complete"</strong> button dabayein, popup me apna screenshot upload karein aur <strong>"Done"</strong> click karein. Aapka subscription instantly activate ho jayega!
+                  <p className="text-[11px] text-neutral-600 font-medium leading-tight">
+                    Tap "Payment Complete" below, attach receipt & done!
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-6">
-              <button
-                type="button"
-                onClick={() => setShowHowToBuyModal(false)}
-                className="w-full py-3.5 px-6 rounded-2xl text-xs sm:text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-95 cursor-pointer"
-              >
-                Samajh Gaya / Proceed To Pay →
-              </button>
-            </div>
+            {/* Bottom Button */}
+            <button
+              type="button"
+              onClick={() => setShowHowToBuyModal(false)}
+              className="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-95 cursor-pointer mt-1"
+            >
+              Samajh Gaya / Proceed To Pay →
+            </button>
           </div>
         </div>
       )}
 
       {/* ========================================================
-          MANDATORY SCREENSHOT SUBMISSION POPUP MODAL
+          MANDATORY SCREENSHOT SUBMISSION POPUP MODAL (FIXED BOTTOM SHEET)
          ======================================================== */}
       {showScreenshotModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-white rounded-[28px] sm:rounded-[32px] p-5 sm:p-8 shadow-2xl border-2 border-neutral-900 text-left">
-            <div className="flex items-center justify-between pb-4 border-b border-[#F0EAE3] mb-4">
+        <div
+          onClick={() => setShowScreenshotModal(false)}
+          className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:pb-3 sm:px-4 bg-black/60 backdrop-blur-xs animate-fadeIn"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] p-4 sm:p-5 shadow-2xl border-t-2 sm:border-2 border-neutral-900 text-left animate-bottom-sheet overflow-hidden select-none"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-[#F0EAE3]">
               <div>
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 inline-block mb-1">
-                  Mandatory Verification
-                </span>
-                <h3 className="text-base sm:text-xl font-black text-neutral-950">
-                  Submit Payment Screenshot
-                </h3>
-                <p className="text-xs text-neutral-500 font-medium">
+                <div className="flex items-center gap-2">
+                  <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 inline-block">
+                    Mandatory
+                  </span>
+                  <h3 className="text-sm sm:text-base font-black text-neutral-950">
+                    Submit Payment Screenshot
+                  </h3>
+                </div>
+                <p className="text-[11px] text-neutral-500 font-medium mt-0.5">
                   Plan: {selectedPlan?.name} (₹{selectedPlan?.price})
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowScreenshotModal(false)}
-                className="w-8 h-8 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors shrink-0"
+                className="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-xs cursor-pointer transition-colors shrink-0"
                 title="Cancel"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
             </div>
 
-            {/* Error banner inside modal */}
+            {/* Error banner inside modal (compact) */}
             {screenshotModalError && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold flex items-center gap-2">
-                <svg className="w-4 h-4 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <div className="mt-2.5 p-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[11px] font-bold flex items-center gap-2">
+                <svg className="w-3.5 h-3.5 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <circle cx="12" cy="12" r="10" />
                   <line x1="12" y1="8" x2="12" y2="12" />
                   <line x1="12" y1="16" x2="12.01" y2="16" />
                 </svg>
-                <span>{screenshotModalError}</span>
+                <span className="truncate">{screenshotModalError}</span>
               </div>
             )}
 
-            {/* Upload Area */}
-            <div className="space-y-3">
-              <label className="block text-xs font-extrabold text-neutral-900">
-                Attach Payment Receipt <span className="text-[#FF3358]">* (Mandatory)</span>
-              </label>
+            {/* Upload Area (Compact & Non-Scrollable) */}
+            <div className="relative my-3">
+              <input
+                type="file"
+                accept="image/*"
+                required
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
 
-              <div className="relative border-2 border-dashed border-[#D8CFC5] hover:border-[#FF3358] rounded-2xl p-5 bg-[#FAF6F2] transition-colors text-center cursor-pointer">
-                <input
-                  type="file"
-                  accept="image/*"
-                  required
-                  onChange={handleFileChange}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-
-                {screenshotData ? (
-                  <div className="space-y-2">
-                    <div className="w-20 h-20 mx-auto rounded-xl overflow-hidden border border-[#EAE3DB] shadow-xs bg-white">
-                      <img src={screenshotData} alt="Receipt preview" className="w-full h-full object-cover" />
-                    </div>
-                    <div className="text-xs font-extrabold text-emerald-700 flex items-center justify-center gap-1.5">
-                      <svg className="w-4 h-4 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+              {screenshotData ? (
+                <div className="flex items-center gap-3 p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/60 transition-colors">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden border border-emerald-300 bg-white shrink-0 shadow-xs">
+                    <img src={screenshotData} alt="Receipt preview" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="min-w-0 flex-1 text-left">
+                    <div className="text-xs font-black text-emerald-800 flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
-                      <span className="truncate max-w-[200px]">{screenshotName || 'Screenshot attached'}</span>
+                      <span className="truncate">{screenshotName || 'Screenshot attached'}</span>
                     </div>
-                    <span className="text-[11px] text-neutral-500 font-semibold underline block">
-                      Click to change image
+                    <span className="text-[11px] text-neutral-500 font-semibold underline block mt-0.5">
+                      Click to replace image
                     </span>
                   </div>
-                ) : (
-                  <div className="space-y-2 py-3">
-                    <div className="w-12 h-12 mx-auto rounded-2xl bg-white border border-[#EAE3DB] flex items-center justify-center text-[#FF3358] shadow-xs">
-                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <polyline points="21 15 16 10 5 21" />
-                      </svg>
-                    </div>
-                    <span className="text-xs font-black text-neutral-950 block">
-                      Click to Select or Drop Screenshot Here
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-[#D8CFC5] hover:border-[#FF3358] bg-[#FAF6F2] transition-colors cursor-pointer">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-[#EAE3DB] flex items-center justify-center text-[#FF3358] shadow-xs shrink-0">
+                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" />
+                      <circle cx="8.5" cy="8.5" r="1.5" />
+                      <polyline points="21 15 16 10 5 21" />
+                    </svg>
+                  </div>
+                  <div className="text-left min-w-0">
+                    <span className="text-xs font-black text-neutral-950 block leading-tight">
+                      Click to Upload Payment Screenshot
                     </span>
-                    <span className="text-[11px] text-neutral-500 font-medium block">
+                    <span className="text-[11px] text-neutral-500 font-medium block leading-tight mt-0.5">
                       Attach payment proof (PNG, JPG, or WEBP)
                     </span>
                   </div>
-                )}
-              </div>
-
-              <p className="text-[11px] text-neutral-500 font-medium text-center">
-                Your payment screenshot is required to verify the ₹{selectedPlan?.price} transaction and activate your plan.
-              </p>
+                </div>
+              )}
             </div>
 
+            <p className="text-[10px] sm:text-[11px] text-neutral-500 font-medium text-center mb-3">
+              Payment screenshot is mandatory to verify ₹{selectedPlan?.price} and instantly activate your plan.
+            </p>
+
             {/* Bottom Buttons: Done & Cancel */}
-            <div className="mt-6 space-y-2">
+            <div className="space-y-1.5">
               <button
                 type="button"
                 onClick={handleConfirmDone}
                 disabled={isProcessing}
-                className="w-full py-4 px-6 rounded-2xl text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-xl transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                className="w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
               >
                 {isProcessing ? (
-                  <span className="inline-block w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : (
                   <>
-                    <svg className="w-5 h-5 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                    <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                     <span>Done (Submit & Activate)</span>
@@ -423,7 +452,7 @@ export default function PlansPage({ onNavigate }) {
               <button
                 type="button"
                 onClick={() => setShowScreenshotModal(false)}
-                className="w-full py-2.5 text-xs font-bold text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer"
+                className="w-full py-1.5 text-[11px] font-bold text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer text-center block"
               >
                 Cancel / Go Back
               </button>
@@ -699,138 +728,6 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* ========================================================
-          GEM-LIKE PRO BENEFITS GRID (Why Pro Members Love It)
-         ======================================================== */}
-      <div className="max-w-4xl p-4 sm:p-7 rounded-3xl bg-white border-2 border-neutral-900 shadow-md space-y-4 sm:space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#F0EAE3]">
-          <div>
-            <span className="text-[10px] font-black uppercase tracking-wider text-[#FF3358] flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5 text-[#FF3358] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-              </svg>
-              <span>Exclusive Advantage For Thumbnail Designers</span>
-            </span>
-            <h3 className="text-base sm:text-xl font-black text-neutral-950 mt-0.5">
-              Pro Member Benefits (Included in All Paid Plans)
-            </h3>
-          </div>
-          <span className="self-start sm:self-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 shrink-0">
-            Instant UPI Unlock
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3.5">
-          {/* Gem 1: 100% Ad-Free (No Ads) */}
-          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
-            <div className="w-9 h-9 rounded-xl bg-white text-[#FF3358] border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
-              <svg className="w-5 h-5 text-[#FF3358]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-neutral-950">
-                No Ads (100% Ad-Free)
-              </h4>
-              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
-                Zero banner ads, zero annoying countdowns. Pure distraction-free focus on landing high-paying creator clients.
-              </p>
-            </div>
-          </div>
-
-          {/* Gem 2: Unlimited Cold Emails Generation */}
-          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
-            <div className="w-9 h-9 rounded-xl bg-white text-indigo-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
-              <svg className="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-neutral-950">
-                Unlimited Cold Emails
-              </h4>
-              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
-                High-converting email copy with punchy subject lines and proven hooks personalized with the YouTuber's channel name.
-              </p>
-            </div>
-          </div>
-
-          {/* Gem 3: Unlimited Personalized DM Generator */}
-          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
-            <div className="w-9 h-9 rounded-xl bg-white text-emerald-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
-              <svg className="w-5 h-5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-neutral-950">
-                Unlimited Personalized DMs
-              </h4>
-              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
-                Generate tailored, scroll-stopping DMs for Instagram, WhatsApp, and X with 1-click copy ready to send in seconds.
-              </p>
-            </div>
-          </div>
-
-          {/* Gem 4: 1,000+ Unlimited YouTuber List */}
-          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
-            <div className="w-9 h-9 rounded-xl bg-white text-amber-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
-              <svg className="w-5 h-5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-neutral-950">
-                Unlimited YouTuber List
-              </h4>
-              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
-                Curated directory of 1,000+ active creators across Tech, Gaming, Finance, Vlogs, and Education from 1k+ to 200k+ subs.
-              </p>
-            </div>
-          </div>
-
-          {/* Gem 5: Fear-Free Pitch Angles (No Free Work) */}
-          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
-            <div className="w-9 h-9 rounded-xl bg-white text-purple-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
-              <svg className="w-5 h-5 text-purple-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                <polyline points="9 12 11 14 15 10" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-neutral-950">
-                Fear-Free Pitch Angles
-              </h4>
-              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
-                No need to work for free! Angles emphasize boosting the creator's CTR, saving 4+ hours of editing time, and branding authority.
-              </p>
-            </div>
-          </div>
-
-          {/* Gem 6: Instant 6-Template Refresh & 3 Tones */}
-          <div className="p-4 rounded-2xl bg-[#FAF6F2] border border-[#EAE3DB] space-y-2 hover-lift transition-all hover:border-[#FF3358]/40 hover:bg-white">
-            <div className="w-9 h-9 rounded-xl bg-white text-rose-600 border border-[#EAE3DB] flex items-center justify-center shrink-0 shadow-2xs">
-              <svg className="w-5 h-5 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 4 23 10 17 10" />
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-              </svg>
-            </div>
-            <div>
-              <h4 className="text-xs font-black text-neutral-950">
-                6 Angles & 3 Tones Refresh
-              </h4>
-              <p className="text-[11px] text-neutral-600 font-medium leading-relaxed mt-1">
-                Toggle between Professional, Direct Approach, or With Portfolio, and tap Refresh to instantly cycle through 6 high-reply templates.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ========================================================
           PAYMENT SECTION: ONLY OPENS ONCE USER SELECTS A PLAN
          ======================================================== */}
       {selectedPlan && !hasActiveAnnualPlan && (
@@ -940,7 +837,7 @@ export default function PlansPage({ onNavigate }) {
               <div className="flex items-center justify-start pt-0.5">
                 <button
                   type="button"
-                  onClick={() => setShowHowToBuyModal(true)}
+                  onClick={handleOpenHowToBuy}
                   className="inline-flex items-center gap-2 text-xs font-black text-neutral-700 hover:text-[#FF3358] transition-colors cursor-pointer group"
                 >
                   <span className="w-5 h-5 rounded-full bg-neutral-200 group-hover:bg-rose-100 text-neutral-800 group-hover:text-[#FF3358] flex items-center justify-center text-[11px] font-black transition-colors">

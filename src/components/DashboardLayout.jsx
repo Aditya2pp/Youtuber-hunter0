@@ -100,6 +100,20 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
       ),
     },
     {
+      id: 'downloader',
+      label: 'Thumbnail Downloader',
+      fullLabel: 'YT Video Link To Thumbnail Downloader',
+      badge: 'PRO',
+      href: '#/dashboard/downloader',
+      icon: (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+      ),
+    },
+    {
       id: 'plans',
       label: 'Plans & Pricing',
       href: '#/dashboard/plans',
@@ -125,6 +139,7 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
   const pageTitle = {
     find: 'Find YouTubers',
     saved: 'Saved YouTubers',
+    downloader: 'YT Video Link To Thumbnail Downloader',
     plans: 'Subscription & Plans',
     settings: 'Account Settings',
   }[activeMenu] || 'Dashboard';
@@ -245,7 +260,14 @@ export default function DashboardLayout({ activeMenu = 'find', onNavigate, child
                   {item.icon}
                 </div>
                 {(isDesktop ? sidebarOpen : true) && (
-                  <span className="truncate">{item.label}</span>
+                  <div className="flex items-center justify-between flex-1 min-w-0">
+                    <span className="truncate">{item.label}</span>
+                    {item.badge && (
+                      <span className="ml-1.5 px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 shrink-0">
+                        {item.badge}
+                      </span>
+                    )}
+                  </div>
                 )}
               </a>
             );
