@@ -39,10 +39,26 @@ if (fs.existsSync(docsDir)) {
 }
 fs.cpSync(path.resolve('dist'), docsDir, { recursive: true });
 
-// 4. Also provide root 404.html, .nojekyll, and root route directories
+// 4. Also provide root 404.html, .nojekyll, root icons/manifests, and root route directories
 // (in case user deploys from root instead of /docs)
 fs.writeFileSync(path.resolve('.nojekyll'), '');
 fs.writeFileSync(path.resolve('404.html'), htmlContent);
+
+// Copy icons and manifests to root
+const rootAssetsToCopy = [
+  'icon.png',
+  'icon-192.png',
+  'icon-512.png',
+  'manifest.webmanifest',
+  'manifest.json',
+];
+
+for (const asset of rootAssetsToCopy) {
+  const src = path.resolve('public', asset);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, path.resolve(asset));
+  }
+}
 
 for (const route of routes) {
   const dir = path.resolve(route);

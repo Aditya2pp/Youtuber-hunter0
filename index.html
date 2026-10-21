@@ -9,6 +9,43 @@
     <meta property="og:description" content="Find Client Who Need Work - YouTubers Finder Tool for Video Editors, Thumbnail Designers, Agencies, and Brand Deals." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ff315f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="ClientHunt" />
+    <meta name="application-name" content="YouTuber Finder" />
+
+    <!-- Favicon & Touch Icons -->
+    <link rel="icon" type="image/png" href="./icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+    <link rel="shortcut icon" type="image/png" href="./icon.png" />
+    <link rel="apple-touch-icon" href="./icon.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png" />
+
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+
+    <!-- GitHub Pages Subpath Dynamic Base Resolver -->
+    <script>
+      (function() {
+        try {
+          var p = window.location.pathname || '/';
+          var m = p.match(/\/(login|signup|admin-011@?|admin-011%40|admin|dashboard)(?:\/|$)/i);
+          var b = m ? p.slice(0, m.index + 1) : p.replace(/[^/]*$/, '');
+          if (!b.endsWith('/')) b += '/';
+          if (b !== './' && b !== '/') {
+            var manifestEl = document.querySelector('link[rel="manifest"]');
+            if (manifestEl) manifestEl.setAttribute('href', b + 'manifest.webmanifest');
+            var icons = document.querySelectorAll('link[rel*="icon"]');
+            icons.forEach(function(el) {
+              var orig = el.getAttribute('href') || '';
+              if (orig.indexOf('icon-192.png') !== -1) el.setAttribute('href', b + 'icon-192.png');
+              else if (orig.indexOf('icon.png') !== -1) el.setAttribute('href', b + 'icon.png');
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

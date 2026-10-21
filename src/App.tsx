@@ -20,6 +20,7 @@ import SettingsPage from './components/SettingsPage.jsx';
 import ThumbnailDownloaderPage from './components/ThumbnailDownloaderPage.jsx';
 import AdminPage from './components/AdminPage.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import HomeScreenShortcutTip from './components/HomeScreenShortcutTip';
 import { initScrollReveal } from '../lib/scrollReveal.js';
 
 export default function App() {
@@ -254,6 +255,7 @@ export default function App() {
       </div>
       <div className="min-h-screen w-full bg-[#FAF6F2] dark:bg-[#13100E] text-neutral-900 dark:text-[#FAF6F2] transition-colors duration-200">
         {renderRoute()}
+        <HomeScreenShortcutTip />
       </div>
     </ErrorBoundary>
   );
