@@ -92,7 +92,7 @@ export default function SettingsPage({ onNavigate }) {
         {!userIsPaid && (
           <div className="mt-6 pt-6 border-t border-[#F0EAE3] flex items-center justify-between gap-3">
             <span className="text-xs text-neutral-500 font-medium">
-              Want 100% Ad-Free, Unlimited DMs & Cold Emails, and 1,000+ Creator Directory?
+              Unlock unlimited creator leads and instant pitch generator access:
             </span>
             <button
               onClick={() => onNavigate && onNavigate('/dashboard/plans')}

@@ -432,46 +432,51 @@ html.dark body,
    VIEW TRANSITION API & SMOOTH BLURRY FADE (Zero Flicker)
    ==================================================================== */
 
-/* View Transitions API native crossfade with subtle blur */
+/* View Transitions API native clean crossfade without texture-invalidating blurs */
 ::view-transition-old(root) {
-  animation: 180ms var(--ease-out) both fadeBlurOut;
+  animation: 140ms cubic-bezier(0.4, 0, 0.2, 1) both fadeCleanOut;
 }
 
 ::view-transition-new(root) {
-  animation: 260ms var(--ease-out) both fadeBlurIn;
+  animation: 200ms cubic-bezier(0.16, 1, 0.3, 1) both fadeCleanIn;
 }
 
-@keyframes fadeBlurOut {
+@keyframes fadeCleanOut {
   0% {
     opacity: 1;
-    filter: blur(0px);
   }
   100% {
     opacity: 0;
-    filter: blur(6px);
   }
 }
 
-@keyframes fadeBlurIn {
+@keyframes fadeCleanIn {
   0% {
     opacity: 0;
-    filter: blur(8px);
-    transform: translateY(8px);
   }
   100% {
     opacity: 1;
-    filter: blur(0px);
-    transform: translateY(0);
   }
 }
 
-/* Fallback & In-App Blurry Fade Scene Transitions */
+/* Fallback & In-App Smooth Hardware-Accelerated Scene Transitions */
 .scene-view-transition,
 .scene-content-transition,
 .scene-page-transition,
 .view-blurry-fade {
-  animation: fadeBlurIn 260ms var(--ease-out) both;
-  will-change: opacity, transform, filter;
+  animation: sceneFadeIn 180ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+@keyframes sceneFadeIn {
+  0% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* ====================================================================
@@ -576,12 +581,20 @@ html.js-ready .landing-page .reveal-pop:not(.revealed):not(.is-revealed) {
   will-change: opacity, transform;
 }
 
-/* Safety: Dashboard content and cards must NEVER be hidden */
+/* Safety: Dashboard content and cards must NEVER flicker, hide, or flash */
 main .reveal,
 main [data-reveal],
 main .card-hover-lift {
   opacity: 1 !important;
   visibility: visible !important;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+main [data-reveal].revealed,
+main [data-reveal] {
+  animation-fill-mode: forwards !important;
 }
 
 /* Active Glide-In Animations (Fires once per element, smoothly and on time) */

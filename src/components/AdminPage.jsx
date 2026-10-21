@@ -261,7 +261,7 @@ export default function AdminPage({ onNavigate }) {
   };
 
   const handleRejectPayment = async (paymentId) => {
-    if (!window.confirm('Are you sure you want to REJECT this payment? User plan will be revoked immediately and future auto-activation will be blocked.')) {
+    if (!window.confirm('Are you sure you want to REJECT this payment? The user plan will be revoked and they can re-upload their receipt.')) {
       return;
     }
     try {
@@ -1278,11 +1278,6 @@ export default function AdminPage({ onNavigate }) {
                                 {u.is_admin && (
                                   <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-red-100 text-red-700">
                                     ADMIN
-                                  </span>
-                                )}
-                                {u.auto_blocked && (
-                                  <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
-                                    AUTO-BLOCKED
                                   </span>
                                 )}
                               </div>

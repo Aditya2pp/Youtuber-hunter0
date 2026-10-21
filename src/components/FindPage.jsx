@@ -122,41 +122,6 @@ export default function FindPage({ onNavigate }) {
 
   return (
     <div className="space-y-6">
-      {/* Top Banner Notice */}
-      <div data-reveal="up" className="p-5 rounded-3xl bg-white border border-[#EAE3DB] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm card-hover-lift">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-base sm:text-lg font-black text-neutral-950">
-              Client & Creator Directory
-            </h2>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-50 text-[#FF3358] border border-rose-100">
-              1000+ List
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-neutral-500 font-medium mt-0.5">
-            {userIsPaid ? (
-              <span className="text-emerald-700 font-bold inline-flex items-center gap-1">
-                <svg className="w-3.5 h-3.5 text-emerald-600 inline" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.8">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                <span>Pro Member: 100% Ad-Free, Unlimited YouTuber Directory & Pitch Generator Unlocked!</span>
-              </span>
-            ) : (
-              <span>
-                Free tier: First 5 channels visible. Unlock 1,000+ creators, No Ads & unlimited pitch generator for only ₹30.
-              </span>
-            )}
-          </p>
-        </div>
-        {!userIsPaid && (
-          <button
-            onClick={() => onNavigate && onNavigate('/dashboard/plans')}
-            className="py-2.5 px-5 rounded-xl text-xs font-extrabold text-white bg-[#FF3358] hover:bg-[#FF1F48] shrink-0 shadow-sm transition-transform active:scale-95 cursor-pointer"
-          >
-            Unlock All (₹30)
-          </button>
-        )}
-      </div>
 
       {/* FILTER BAR WITH 3 SELECTS + SEARCH INPUT */}
       <div data-reveal="up" className="p-5 sm:p-6 rounded-3xl bg-white border border-[#EAE3DB] shadow-sm card-hover-lift stagger-1">

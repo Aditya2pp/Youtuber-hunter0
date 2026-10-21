@@ -29,10 +29,8 @@ export default function PlansPage({ onNavigate }) {
   // Modals state
   const [showHowToBuyModal, setShowHowToBuyModal] = useState(false);
   const [showScreenshotModal, setShowScreenshotModal] = useState(false);
+  const [screenshotModalConfirmed, setScreenshotModalConfirmed] = useState(false);
   const [screenshotModalError, setScreenshotModalError] = useState('');
-
-  // Payment Success Animation State
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const paymentSectionRef = useRef(null);
 
@@ -54,19 +52,33 @@ export default function PlansPage({ onNavigate }) {
     return () => clearTimeout(timer);
   }, [selectedPlan]);
 
-  // Check if user currently has an active 1 Year Pro plan (highest tier)
-  const hasActiveAnnualPlan = Boolean(
+  // Active plan checks
+  const isPlanActive = Boolean(
     userIsPaid &&
     currentPlan &&
-    currentPlan.planId === 'plan_1y' &&
+    currentPlan.active &&
+    !currentPlan.expired &&
     currentPlan.expiresAt &&
     new Date(currentPlan.expiresAt).getTime() > Date.now()
   );
 
+  const hasActiveAnnualPlan = Boolean(
+    isPlanActive && (currentPlan?.planId === 'plan_1y' || currentPlan?.planId === '1y')
+  );
+
+  const hasActive30DayPlan = Boolean(
+    isPlanActive && (currentPlan?.planId === 'plan_30d' || currentPlan?.planId === '30d')
+  );
+
   const handleSelectPlan = (p) => {
-    // If 1 Year Pro is already active, prevent buying any plan until it expires
+    // If 1 Year Pro is active, prevent buying any plan
     if (hasActiveAnnualPlan) {
       setFormError('You already have an active 1 Year Pro plan! You have full access and do not need any other plan until it expires.');
+      return;
+    }
+    // If 30-day plan is active, prevent re-buying 30-day plan
+    if (p.id === 'plan_30d' && hasActive30DayPlan) {
+      setFormError('You already have an active 30 Days Pass! You can buy again once your current 30-day period ends.');
       return;
     }
     setSelectedPlan(p);
@@ -138,7 +150,7 @@ export default function PlansPage({ onNavigate }) {
   };
 
   useEffect(() => {
-    if (showHowToBuyModal || showScreenshotModal || showSuccessModal) {
+    if (showHowToBuyModal || showScreenshotModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -146,11 +158,12 @@ export default function PlansPage({ onNavigate }) {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [showHowToBuyModal, showScreenshotModal, showSuccessModal]);
+  }, [showHowToBuyModal, showScreenshotModal]);
 
   const handleOpenScreenshotModal = () => {
     setFormError('');
     setScreenshotModalError('');
+    setScreenshotModalConfirmed(false);
     const currentUser = me();
     if (!currentUser || currentUser.isGuest) {
       setFormError('Please log in or sign up first so your plan can be activated for your account.');
@@ -191,8 +204,8 @@ export default function PlansPage({ onNavigate }) {
       });
 
       setIsProcessing(false);
-      setShowScreenshotModal(false);
-      setShowSuccessModal(true);
+      // Morphs directly inside the bottom popup into the confirmation screen!
+      setScreenshotModalConfirmed(true);
     } catch (err) {
       setIsProcessing(false);
       setScreenshotModalError(err.message || 'Error processing payment.');
@@ -326,7 +339,7 @@ export default function PlansPage({ onNavigate }) {
       )}
 
       {/* ========================================================
-          MANDATORY SCREENSHOT SUBMISSION POPUP MODAL (FIXED BOTTOM SHEET)
+          MANDATORY SCREENSHOT SUBMISSION & IN-PLACE CONFIRMATION POPUP (FIXED BOTTOM SHEET)
          ======================================================== */}
       {showScreenshotModal && (
         <div
@@ -337,174 +350,185 @@ export default function PlansPage({ onNavigate }) {
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-md bg-white rounded-t-[28px] sm:rounded-[28px] p-4 sm:p-5 shadow-2xl border-t-2 sm:border-2 border-neutral-900 text-left animate-bottom-sheet overflow-hidden select-none"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#F0EAE3]">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 inline-block">
-                    Mandatory
-                  </span>
-                  <h3 className="text-sm sm:text-base font-black text-neutral-950">
-                    Submit Payment Screenshot
-                  </h3>
+            {screenshotModalConfirmed ? (
+              /* ========================================================
+                 CONFIRMATION VIEW (MORPHED IN-PLACE IN BOTTOM SHEET)
+                 ======================================================== */
+              <div className="text-center py-2">
+                <div className="w-14 h-14 mx-auto mb-2.5 rounded-2xl bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center text-emerald-600 shadow-sm">
+                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
                 </div>
-                <p className="text-[11px] text-neutral-500 font-medium mt-0.5">
-                  Plan: {selectedPlan?.name} (₹{selectedPlan?.price})
+
+                <span className="px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-block mb-1.5">
+                  Payment Submitted & Verified
+                </span>
+
+                <h3 className="text-base sm:text-lg font-black text-neutral-950 mb-1">
+                  Plan Activated Instantly!
+                </h3>
+
+                <p className="text-[11px] sm:text-xs text-neutral-600 font-medium leading-relaxed max-w-xs mx-auto mb-4">
+                  Receipt for <strong className="text-neutral-950">{selectedPlan?.name || currentPlan?.name || 'Pro Plan'}</strong> (₹{selectedPlan?.price || '30'}) submitted! Your account is active with full creator leads and outreach access.
                 </p>
+
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowScreenshotModal(false);
+                      setScreenshotModalConfirmed(false);
+                      if (onNavigate) {
+                        onNavigate('/dashboard/find');
+                      } else if (typeof window !== 'undefined') {
+                        window.location.hash = '#/dashboard/find';
+                      }
+                    }}
+                    className="w-full py-3 px-4 rounded-xl text-xs sm:text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    <span>Browse YouTuber Directory →</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowScreenshotModal(false);
+                      setScreenshotModalConfirmed(false);
+                    }}
+                    className="w-full py-1.5 text-xs font-bold text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer text-center block"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowScreenshotModal(false)}
-                className="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-xs cursor-pointer transition-colors shrink-0"
-                title="Cancel"
-              >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Error banner inside modal (compact) */}
-            {screenshotModalError && (
-              <div className="mt-2.5 p-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[11px] font-bold flex items-center gap-2">
-                <svg className="w-3.5 h-3.5 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" y1="8" x2="12" y2="12" />
-                  <line x1="12" y1="16" x2="12.01" y2="16" />
-                </svg>
-                <span className="truncate">{screenshotModalError}</span>
-              </div>
-            )}
-
-            {/* Upload Area (Compact & Non-Scrollable) */}
-            <div className="relative my-3">
-              <input
-                type="file"
-                accept="image/*"
-                required
-                onChange={handleFileChange}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              />
-
-              {screenshotData ? (
-                <div className="flex items-center gap-3 p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/60 transition-colors">
-                  <div className="w-12 h-12 rounded-lg overflow-hidden border border-emerald-300 bg-white shrink-0 shadow-xs">
-                    <img src={screenshotData} alt="Receipt preview" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="min-w-0 flex-1 text-left">
-                    <div className="text-xs font-black text-emerald-800 flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      <span className="truncate">{screenshotName || 'Screenshot attached'}</span>
+            ) : (
+              /* ========================================================
+                 UPLOAD FORM VIEW
+                 ======================================================== */
+              <>
+                {/* Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-[#F0EAE3]">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-rose-50 text-[#FF3358] border border-rose-200 inline-block">
+                        Mandatory
+                      </span>
+                      <h3 className="text-sm sm:text-base font-black text-neutral-950">
+                        Submit Payment Screenshot
+                      </h3>
                     </div>
-                    <span className="text-[11px] text-neutral-500 font-semibold underline block mt-0.5">
-                      Click to replace image
-                    </span>
+                    <p className="text-[11px] text-neutral-500 font-medium mt-0.5">
+                      Plan: {selectedPlan?.name} (₹{selectedPlan?.price})
+                    </p>
                   </div>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-[#D8CFC5] hover:border-[#FF3358] bg-[#FAF6F2] transition-colors cursor-pointer">
-                  <div className="w-10 h-10 rounded-xl bg-white border border-[#EAE3DB] flex items-center justify-center text-[#FF3358] shadow-xs shrink-0">
-                    <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <rect x="3" y="3" width="18" height="18" rx="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <polyline points="21 15 16 10 5 21" />
+                  <button
+                    type="button"
+                    onClick={() => setShowScreenshotModal(false)}
+                    className="w-7 h-7 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600 flex items-center justify-center font-bold text-xs cursor-pointer transition-colors shrink-0"
+                    title="Cancel"
+                  >
+                    <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
                     </svg>
-                  </div>
-                  <div className="text-left min-w-0">
-                    <span className="text-xs font-black text-neutral-950 block leading-tight">
-                      Click to Upload Payment Screenshot
-                    </span>
-                    <span className="text-[11px] text-neutral-500 font-medium block leading-tight mt-0.5">
-                      Attach payment proof (PNG, JPG, or WEBP)
-                    </span>
-                  </div>
+                  </button>
                 </div>
-              )}
-            </div>
 
-            <p className="text-[10px] sm:text-[11px] text-neutral-500 font-medium text-center mb-3">
-              Payment screenshot is mandatory to verify ₹{selectedPlan?.price} and instantly activate your plan.
-            </p>
-
-            {/* Bottom Buttons: Done & Cancel */}
-            <div className="space-y-1.5">
-              <button
-                type="button"
-                onClick={handleConfirmDone}
-                disabled={isProcessing}
-                className="w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
-              >
-                {isProcessing ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <>
-                    <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                      <polyline points="20 6 9 17 4 12" />
+                {/* Error banner inside modal (compact) */}
+                {screenshotModalError && (
+                  <div className="mt-2.5 p-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[11px] font-bold flex items-center gap-2">
+                    <svg className="w-3.5 h-3.5 shrink-0 text-rose-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
                     </svg>
-                    <span>Done (Submit & Activate)</span>
-                  </>
+                    <span className="truncate">{screenshotModalError}</span>
+                  </div>
                 )}
-              </button>
 
-              <button
-                type="button"
-                onClick={() => setShowScreenshotModal(false)}
-                className="w-full py-1.5 text-[11px] font-bold text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer text-center block"
-              >
-                Cancel / Go Back
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+                {/* Upload Area (Compact & Non-Scrollable) */}
+                <div className="relative my-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    required
+                    onChange={handleFileChange}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
 
-      {/* ========================================================
-          CELEBRATION / PAYMENT SUCCESS MODAL ANIMATION
-         ======================================================== */}
-      {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
-          <div className="relative w-full max-w-md bg-white rounded-[32px] p-8 text-center shadow-2xl border-2 border-emerald-400 overflow-hidden transform animate-scaleUp">
-            {/* Animated Celebration Confetti Orbs */}
-            <div className="absolute -top-10 -left-10 w-28 h-28 bg-emerald-100 rounded-full blur-xl pointer-events-none" />
-            <div className="absolute -bottom-10 -right-10 w-28 h-28 bg-rose-100 rounded-full blur-xl pointer-events-none" />
+                  {screenshotData ? (
+                    <div className="flex items-center gap-3 p-2.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/60 transition-colors">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden border border-emerald-300 bg-white shrink-0 shadow-xs">
+                        <img src={screenshotData} alt="Receipt preview" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="min-w-0 flex-1 text-left">
+                        <div className="text-xs font-black text-emerald-800 flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          <span className="truncate">{screenshotName || 'Screenshot attached'}</span>
+                        </div>
+                        <span className="text-[11px] text-neutral-500 font-semibold underline block mt-0.5">
+                          Click to replace image
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 rounded-xl border-2 border-dashed border-[#D8CFC5] hover:border-[#FF3358] bg-[#FAF6F2] transition-colors cursor-pointer">
+                      <div className="w-10 h-10 rounded-xl bg-white border border-[#EAE3DB] flex items-center justify-center text-[#FF3358] shadow-xs shrink-0">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                      </div>
+                      <div className="text-left min-w-0">
+                        <span className="text-xs font-black text-neutral-950 block leading-tight">
+                          Click to Upload Payment Screenshot
+                        </span>
+                        <span className="text-[11px] text-neutral-500 font-medium block leading-tight mt-0.5">
+                          Attach payment proof (PNG, JPG, or WEBP)
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-            {/* Glowing Success Checkmark Circle */}
-            <div className="relative w-20 h-20 mx-auto mb-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30">
-              <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-30" />
-              <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </div>
+                <p className="text-[10px] sm:text-[11px] text-neutral-500 font-medium text-center mb-3">
+                  Payment screenshot is mandatory to verify ₹{selectedPlan?.price} and instantly activate your plan.
+                </p>
 
-            <span className="px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-block mb-2">
-              Payment Done & Verified!
-            </span>
+                {/* Bottom Buttons: Done & Cancel */}
+                <div className="space-y-1.5">
+                  <button
+                    type="button"
+                    onClick={handleConfirmDone}
+                    disabled={isProcessing}
+                    className="w-full py-3.5 px-4 rounded-xl text-xs sm:text-sm font-black text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-98 cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isProcessing ? (
+                      <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>Done (Submit & Activate)</span>
+                      </>
+                    )}
+                  </button>
 
-            <h3 className="text-2xl font-black text-neutral-950 mb-2">
-              Plan Activated Instantly!
-            </h3>
-
-            <p className="text-xs sm:text-sm text-neutral-600 font-medium leading-relaxed mb-6">
-              Congratulations! Your <strong className="text-neutral-900">{selectedPlan?.name || 'Pro Plan'}</strong> is now live. 100% Ad-Free access, Unlimited DM & Cold Email generation, and all 1,000+ creator directories are fully unlocked!
-            </p>
-
-            <button
-              type="button"
-              onClick={() => {
-                setShowSuccessModal(false);
-                if (onNavigate) {
-                  onNavigate('/dashboard/find');
-                } else if (typeof window !== 'undefined') {
-                  window.location.hash = '#/dashboard/find';
-                }
-              }}
-              className="w-full py-3.5 px-6 rounded-2xl text-sm font-extrabold text-white bg-neutral-950 hover:bg-neutral-800 shadow-md transition-all active:scale-95 cursor-pointer"
-            >
-              Start Hunting Clients Now →
-            </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowScreenshotModal(false)}
+                    className="w-full py-1.5 text-[11px] font-bold text-neutral-500 hover:text-neutral-900 transition-colors cursor-pointer text-center block"
+                  >
+                    Cancel / Go Back
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -542,7 +566,6 @@ export default function PlansPage({ onNavigate }) {
                   <strong className="text-neutral-900">
                     {currentPlan.expiresAt ? new Date(currentPlan.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Active'}
                   </strong>
-                  {' '}· 100% Ad-Free, Unlimited DMs & Cold Emails, 1,000+ Creators Unlocked.
                 </p>
               </div>
             </div>
@@ -593,7 +616,9 @@ export default function PlansPage({ onNavigate }) {
         <p className="text-xs sm:text-sm text-neutral-600 font-medium mt-1">
           {hasActiveAnnualPlan 
             ? 'Your 1 Year Pro plan is currently active with full unlocked creator directory and pitch generator access.'
-            : 'Select a plan below for instant UPI payment: 100% Ad-Free, Unlimited DMs & Cold Emails, and 1,000+ Creator Leads.'}
+            : hasActive30DayPlan
+            ? 'Your 30 Days Pass is active. You can upgrade to 1 Year Pro anytime.'
+            : 'Select a plan below for instant UPI unlock.'}
         </p>
       </div>
 
@@ -604,20 +629,26 @@ export default function PlansPage({ onNavigate }) {
         {PLANS.map((p, idx) => {
           const isSelected = selectedPlan?.id === p.id;
           const is30Days = p.id === 'plan_30d';
-          const isCurrentActive = userIsPaid && currentPlan?.planId === p.id;
-          const isLockedByAnnual = hasActiveAnnualPlan;
+          const isCurrentActive = isPlanActive && currentPlan?.planId === p.id;
+          
+          // Disable 30-day plan if 30-day plan is active OR 1-year is active
+          // Disable 1-year plan if 1-year is active
+          // When plan expires or is rejected, both plans re-enable ("pahle jaisa ho jaaye")
+          const isPlanDisabled = is30Days
+            ? (hasActiveAnnualPlan || hasActive30DayPlan)
+            : hasActiveAnnualPlan;
 
           return (
             <div
               key={p.id}
               data-reveal="scale"
               onClick={() => {
-                if (!isLockedByAnnual) {
+                if (!isPlanDisabled) {
                   handleSelectPlan(p);
                 }
               }}
               className={`rounded-3xl p-5 sm:p-7 flex flex-col justify-between border-2 transition-all relative bg-white card-hover-lift stagger-${idx + 1} ${
-                isLockedByAnnual
+                isPlanDisabled
                   ? isCurrentActive
                     ? 'border-neutral-900 ring-2 ring-neutral-900/10 opacity-95 shadow-sm'
                     : 'border-[#EAE3DB] opacity-60 cursor-not-allowed bg-[#FAF6F2]'
@@ -629,7 +660,11 @@ export default function PlansPage({ onNavigate }) {
               {/* Badge */}
               {is30Days && (
                 <div className="absolute -top-3 right-4 sm:right-6 px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase bg-[#FF3358] text-white shadow-sm">
-                  {isLockedByAnnual ? 'Included in 1 Year Pro' : 'Limited Deal (₹199 Cut)'}
+                  {hasActiveAnnualPlan
+                    ? 'Included in 1 Year Pro'
+                    : hasActive30DayPlan
+                    ? 'Active Plan'
+                    : 'Limited Deal (₹199 Cut)'}
                 </div>
               )}
               {p.badge && !is30Days && (
@@ -689,7 +724,7 @@ export default function PlansPage({ onNavigate }) {
 
               {/* Selection Button */}
               <div className="mt-6 sm:mt-8 pt-3 border-t border-[#F0EAE3]">
-                {isLockedByAnnual ? (
+                {isPlanDisabled ? (
                   <button
                     type="button"
                     disabled
@@ -697,8 +732,10 @@ export default function PlansPage({ onNavigate }) {
                   >
                     {isCurrentActive ? (
                       <span>Active Plan (Till {currentPlan?.expiresAt ? new Date(currentPlan.expiresAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : 'Expiry'})</span>
-                    ) : (
+                    ) : hasActiveAnnualPlan ? (
                       <span>Covered in your 1 Year Pro Plan</span>
+                    ) : (
+                      <span>Plan Currently Active</span>
                     )}
                   </button>
                 ) : (
@@ -728,9 +765,9 @@ export default function PlansPage({ onNavigate }) {
       </div>
 
       {/* ========================================================
-          PAYMENT SECTION: ONLY OPENS ONCE USER SELECTS A PLAN
+          PAYMENT SECTION: ONLY OPENS ONCE USER SELECTS AN AVAILABLE PLAN
          ======================================================== */}
-      {selectedPlan && !hasActiveAnnualPlan && (
+      {selectedPlan && !hasActiveAnnualPlan && !(selectedPlan.id === 'plan_30d' && hasActive30DayPlan) && (
         <div
           ref={paymentSectionRef}
           id="payment-scene"
